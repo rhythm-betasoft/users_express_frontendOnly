@@ -7,11 +7,7 @@ import { exportDataGrid } from "devextreme/excel_exporter";
 import { saveAs } from "file-saver";
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-
-// autoTable(jsPDF);
-
-
-
+import api from '../plugins/api'
 const isNotEmpty = (value) => {
     return value !== undefined && value !== null && value !== "";
 };
@@ -66,18 +62,17 @@ export default function dataSource(url, params = {}, deleteURL = null, updateURL
             });
             console.log("Query Params:", queryParams);
             try {
-                const response = await axios.get(url, { params: queryParams, });
-
+                const response = await api.get(url, { params: queryParams, });
                 if (skipLoader.value) {
                     skipLoader.value = false;
                 }
-
                 return {
                     data: response.data.data || [],
                     summary: response.data.data?.summary || [],
                     totalCount: response.data.totalCount ?? 10,
                 };
-            } catch (error) {
+            } 
+            catch (error) {
                 console.error("Error loading data:", error);
                 if (skipLoader.value) {
                     skipLoader.value = false;
@@ -94,60 +89,70 @@ export default function dataSource(url, params = {}, deleteURL = null, updateURL
                 throw new Error("Error while adding record");
             }
         },
-
         update: async function (key, values) {
             try {
-                await axios.put(`${updateURL}/${key.id}`, values);
+                await api.put(`${updateURL}/${key.id}`, values);
                 return true;
             } catch (error) {
                 console.error("Error while updating record:", error);
                 throw new Error("Error while updating record.");
             }
         },
-
-
         remove: async function (key) {
             try {
-                await axios.delete(`${deleteURL}/${key.id}`);
+                await api.delete(`${deleteURL}/${key.id}`);
                 return true;
             } catch (error) {
                 throw new Error("Error while deleting record.");
             }
         },
-
-
-
     })
+ const onExporting = async (e = null) => {
+  console.log("exporting");
 
-   const onExporting = async (e) => {
-    const selectedData = e.component.getSelectedRowsData();
-    const dataToExport = selectedData.length > 0 ? selectedData : e.component.getDataSource().items();
+  let selectedData = [];
+  const gridInstance = e?.component || dataGridRefName.value?.instance;
 
-    if (dataToExport.length === 0) {
-        e.cancel = true;
-        return;
+  if (gridInstance) {
+    selectedData = gridInstance.getSelectedRowsData();
+  }
+
+  let dataToExport = selectedData.length > 0 ? selectedData : [];
+
+  if (dataToExport.length === 0) {
+    try {
+      const response = await api.get('/users');
+      dataToExport = response.data.data;
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      if (e) e.cancel = true;
+      return;
     }
+  }
 
-    const workbook = new Workbook();
-    const worksheet = workbook.addWorksheet("Exported Data");
+  if (dataToExport.length === 0) {
+    if (e) e.cancel = true;
+    return;
+  }
 
-    const columns = Object.keys(dataToExport[0]);
-    worksheet.addRow(columns);
-
-    dataToExport.forEach((row) => {
-        worksheet.addRow(columns.map((col) => row[col]));
+  const workbook = new Workbook();
+  const worksheet = workbook.addWorksheet("Exported Data");
+  const columns = Object.keys(dataToExport[0]);
+  worksheet.addRow(columns);
+  dataToExport.forEach((row) => {
+    worksheet.addRow(columns.map((col) => row[col]));
+  });
+  worksheet.eachRow((row) => {
+    row.eachCell((cell) => {
+      cell.font = { name: "Arial", size: 12 };
+      cell.alignment = { horizontal: "left" };
     });
+  });
 
-    worksheet.eachRow((row, rowNumber) => {
-        row.eachCell((cell) => {
-            cell.font = { name: "Arial", size: 12 };
-            cell.alignment = { horizontal: "left" };
-        });
-    });
-
-    const buffer = await workbook.xlsx.writeBuffer();
-    saveAs(new Blob([buffer], { type: "application/octet-stream" }), "Users.xlsx");
+  const buffer = await workbook.xlsx.writeBuffer();
+  saveAs(new Blob([buffer], { type: "application/octet-stream" }), "Users.xlsx");
 };
+
 
 const onExportingPDF = (e = { cancel: false }) => {
   const dataGrid = dataGridRefName.value?.instance;
@@ -189,11 +194,9 @@ const onExportingPDF = (e = { cancel: false }) => {
     const getDataGridRefName = (ref_name) => {
         return (dataGridRefName.value = "dataGrid_" + ref_name);
     };
-
     const refName = computed(() => {
         return getDataGridRefName(refKey.value);
     });
-
     const dxGrid = computed(() => {
         return dataGridRefName ? dataGridRefName.value.instance : null;
     });
