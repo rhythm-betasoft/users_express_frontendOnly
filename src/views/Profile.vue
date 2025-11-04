@@ -26,7 +26,8 @@
             <v-form v-model="valid">
               <v-row>
                 <v-col cols="12" sm="6">
-                  <v-text-field v-model="formData.age" label="Age" type="number" :rules="[rules.required]" outlined dense />
+                  <v-text-field v-model="formData.age" label="Age" type="number" :rules="[rules.required]" outlined
+                    dense />
                 </v-col>
 
                 <v-col cols="12" sm="6">
@@ -39,11 +40,13 @@
                 </v-col>
 
                 <v-col cols="12" sm="6">
-                  <v-text-field v-model="formData.blood_group" label="Blood Group" :rules="[rules.required]" outlined dense />
+                  <v-text-field v-model="formData.blood_group" label="Blood Group" :rules="[rules.required]" outlined
+                    dense />
                 </v-col>
               </v-row>
               <v-container class="d-flex justify-center align-center" style="height: 100px;">
-                <v-btn color="primary" @click="submitForm" class="save-btn" style="font-weight: bold; padding: 12px 24px;">
+                <v-btn color="primary" @click="submitForm" class="save-btn"
+                  style="font-weight: bold; padding: 12px 24px;">
                   Save
                 </v-btn>
               </v-container>
@@ -91,7 +94,7 @@
 <script>
 import axios from "axios";
 import { authStore } from "../store/authStore.js";
-
+import api from '../plugins/api.js'
 export default {
   data() {
     return {
@@ -124,19 +127,16 @@ export default {
       this.formData.age = Number(this.formData.age);
 
       try {
-        const response = await axios.put(
-          `http://localhost:5000/users/profile/${this.store.user.id}`,
-          this.formData
-        );
-
+        const response = await api.put(`/users/profile/${this.store.user.id}`, this.formData);
         console.log("Profile updated successfully:", response.data);
         this.store.user = { ...this.store.user, ...this.formData };
-
         alert("Profile updated successfully!");
       } catch (error) {
-        console.error("Error response:", error.response);
+        console.error("Error:", error); 
+        console.error("Error response:", error.response);  
         alert("Failed to update profile. Please try again.");
       }
+
     },
   },
   mounted() {

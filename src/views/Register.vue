@@ -73,7 +73,7 @@
 </template>
 
 <script >
-import axios from 'axios';
+import api from '../plugins/api.js'
 import { authStore } from '../store/authStore'
 import { toast } from 'vue3-toastify';
 export default {
@@ -98,7 +98,7 @@ export default {
             }
 
             try {
-                const response = await axios.post('http://localhost:5000/users/register', {
+                const response = await api.post('/users/register', {
                     name: this.name,
                     email: this.email,
                     password: this.password,
@@ -129,7 +129,7 @@ export default {
 
         async login() {
             try {
-                const response = await axios.post('http://localhost:5000/users/login', {
+                const response = await api.post('/users/login', {
                     email: this.email,
                     password: this.password,
                 });

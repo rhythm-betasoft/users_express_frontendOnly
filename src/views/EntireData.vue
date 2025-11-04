@@ -3,15 +3,29 @@
     <h2 class="text-center mt-5">All Users Details</h2>
   </v-container>
   <v-container>
+    
     <DxDataGrid :data-source="usersData.dataSource" :remote-operations="true" :show-borders="true"
       :column-auto-width="true" :row-alternation-enabled="true" :paging="{ pageSize: 10 }"
       :pager="usersData.paginationOption" :filter-row="{ visible: true, showOperationChooser: true }"
       :editing="{ mode: 'row', allowUpdating: true, allowDeleting: true }" :ref="usersData.dataGridRef"
       :selection="{ mode: 'multiple', showCheckBoxesMode: 'always' }" :export="{ enabled: true, filename: 'Users' }"
-      @exporting="usersData.onExporting">
+      @exporting="usersData.onExporting" >
+
+
+     
+    
       <DxToolbar>
+           <DxItem location="before">
+          <DxSearchPanel
+            :visible="true"
+            :width="240"
+            placeholder="Search users..."
+            style="margin-top: 5px;" 
+          />
+        </DxItem>
         <DxItem location="after" widget="dxButton" :options="{ icon: 'refresh', type: 'default', onClick: refreshData }" />
-          <DxItem location="after" widget="dxDropDownButton" :options="{
+        
+        <DxItem location="after" widget="dxDropDownButton" :options="{
           icon: 'export',
           text: 'Export',
           items: [
@@ -19,16 +33,17 @@
             { text: 'Export to PDF', onClick: () => usersData.onExportingPDF() }
           ],
           displayExpr: 'text',
-         onItemClick: (e) => {
-    if (e.itemData.text === 'Export as Excel') {
-      usersData.onExporting();
-    } else if (e.itemData.text === 'Export to PDF') {
-      usersData.onExportingPDF();
-    }
-  }
+          onItemClick: (e) => {
+            if (e.itemData.text === 'Export as Excel') {
+              usersData.onExporting();
+            } else if (e.itemData.text === 'Export to PDF') {
+              usersData.onExportingPDF();
+            }
+          }
         }" />
+
+
       </DxToolbar>
-      
       <DxColumn data-field="id" caption="Id" alignment="center" width="150" />
       <DxColumn data-field="name" caption="Name" alignment="center" width="250" />
       <DxColumn data-field="gender" caption="Gender" alignment="center" width="250" />
@@ -51,8 +66,12 @@
 
 
 <script setup>
+import Swal from 'sweetalert2';
+
 import "devextreme/dist/css/dx.light.css";
-import DxDataGrid, { DxColumn, DxButton, DxToolbar, DxItem } from "devextreme-vue/data-grid";
+import DxDataGrid, { DxColumn, DxButton, DxToolbar, DxItem,DxSearchPanel} from "devextreme-vue/data-grid";
+
+
 import dataSource from "../composables/dxgrid2.js";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
@@ -68,7 +87,11 @@ const refreshData = () => {
 };
 
 
+
 </script>
 
 
 
+<style>
+
+</style>

@@ -8,6 +8,8 @@ import { saveAs } from "file-saver";
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import api from '../plugins/api'
+import Swal from 'sweetalert2';
+
 const isNotEmpty = (value) => {
     return value !== undefined && value !== null && value !== "";
 };
@@ -20,7 +22,7 @@ export default function dataSource(url, params = {}, deleteURL = null, updateURL
     const paginationOption = {
         visible: true,
         displayMode: "compact",
-        allowedPageSizes: [10, 25, 50],
+        allowedPageSizes: [5, 25, 50],
         childAllowedPageSizes: [7, 15, 25],
         showPageSizeSelector: true,
         showInfo: true,
@@ -107,33 +109,46 @@ export default function dataSource(url, params = {}, deleteURL = null, updateURL
             }
         },
     })
- const onExporting = async (e = null) => {
-  console.log("exporting");
+const onExporting = async (e = null) => {
+  e && (e.cancel = true); // Cancel default export behavior
 
-  let selectedData = [];
   const gridInstance = e?.component || dataGridRefName.value?.instance;
+  if (!gridInstance) return;
 
-  if (gridInstance) {
-    selectedData = gridInstance.getSelectedRowsData();
-  }
+  const selectedData = gridInstance.getSelectedRowsData();
 
-  let dataToExport = selectedData.length > 0 ? selectedData : [];
+  const result = await Swal.fire({
+    title: 'Export Users',
+    text: 'Do you want to export selected users or all users?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Selected Users',
+    cancelButtonText: 'All Users',
+    reverseButtons: true,
+  });
 
-  if (dataToExport.length === 0) {
+  let dataToExport = [];
+
+  if (result.isConfirmed) {
+    // Export selected users
+    if (selectedData.length === 0) {
+      Swal.fire('No Selection', 'Please select at least one user.', 'warning');
+      return;
+    }
+    dataToExport = selectedData;
+  } else {
+    // Export all users
     try {
       const response = await api.get('/users');
       dataToExport = response.data.data;
     } catch (error) {
       console.error('Error fetching users:', error);
-      if (e) e.cancel = true;
+      Swal.fire('Error', 'Failed to fetch users.', 'error');
       return;
     }
   }
 
-  if (dataToExport.length === 0) {
-    if (e) e.cancel = true;
-    return;
-  }
+  if (dataToExport.length === 0) return;
 
   const workbook = new Workbook();
   const worksheet = workbook.addWorksheet("Exported Data");
@@ -154,28 +169,58 @@ export default function dataSource(url, params = {}, deleteURL = null, updateURL
 };
 
 
-const onExportingPDF = (e = { cancel: false }) => {
+
+const onExportingPDF = async (e = { cancel: false }) => {
+  e.cancel = true;
+
   const dataGrid = dataGridRefName.value?.instance;
-  if (!dataGrid) {
-    console.error("DataGrid instance is not available");
-    return;
-  }
+  if (!dataGrid) return;
+
   const selectedData = dataGrid.getSelectedRowsData();
-  const dataToExport = selectedData.length ? selectedData : dataGrid.getDataSource().items();
-  if (dataToExport.length === 0) {
-    e.cancel = true;
-    return;
+
+  const result = await Swal.fire({
+    title: 'Export to PDF',
+    text: 'Do you want to export selected users or all users?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Selected Users',
+    cancelButtonText: 'All Users',
+    reverseButtons: true,
+  });
+
+  let dataToExport = [];
+
+  if (result.isConfirmed) {
+    if (selectedData.length === 0) {
+      Swal.fire('No Selection', 'Please select at least one user.', 'warning');
+      return;
+    }
+    dataToExport = selectedData;
+  } else {
+    try {
+      const response = await api.get('/users');
+      dataToExport = response.data.data;
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      Swal.fire('Error', 'Failed to fetch users.', 'error');
+      return;
+    }
   }
+
+  if (dataToExport.length === 0) return;
+
   const doc = new jsPDF();
   const columns = Object.keys(dataToExport[0]);
   const rows = dataToExport.map(row => columns.map(col => row[col]));
 
   autoTable(doc, {
-  head: [columns],
-  body: rows,
-});
+    head: [columns],
+    body: rows,
+  });
+
   doc.save("Users.pdf");
 };
+
     const refreshTable = (dataGridRef, changedOnly = false) => {  
           console.log("DataGridRef:", dataGridRef.value); 
         if (!dataGridRef) {

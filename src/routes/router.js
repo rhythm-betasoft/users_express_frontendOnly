@@ -3,7 +3,6 @@ import { authStore } from '../store/authStore';
 import Register from '../views/Register.vue';
 import Profile from '../views/Profile.vue';
 import EntireData from '../views/EntireData.vue';
-
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 
