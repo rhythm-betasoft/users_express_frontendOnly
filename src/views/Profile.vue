@@ -43,6 +43,15 @@
                   <v-text-field v-model="formData.blood_group" label="Blood Group" :rules="[rules.required]" outlined
                     dense />
                 </v-col>
+
+                 <!-- <v-col cols="12" sm="6">
+                  <v-text-field v-model="formData.religion" label="DOB"  outlined dense />
+                </v-col>
+
+                <v-col cols="12" sm="6">
+                  <v-text-field v-model="formData.blood_group" label="State"  outlined
+                    dense />
+                </v-col> -->
               </v-row>
               <v-container class="d-flex justify-center align-center" style="height: 100px;">
                 <v-btn color="primary" @click="submitForm" class="save-btn"

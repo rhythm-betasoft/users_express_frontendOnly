@@ -3,33 +3,41 @@
     <h2 class="text-center mt-5">All Users Details</h2>
   </v-container>
   <v-container>
-    
+
     <DxDataGrid :data-source="usersData.dataSource" :remote-operations="true" :show-borders="true"
       :column-auto-width="true" :row-alternation-enabled="true" :paging="{ pageSize: 10 }"
       :pager="usersData.paginationOption" :filter-row="{ visible: true, showOperationChooser: true }"
-      :editing="{ mode: 'row', allowUpdating: true, allowDeleting: true }" :ref="usersData.dataGridRef"
-      :selection="{ mode: 'multiple', showCheckBoxesMode: 'always' }" :export="{ enabled: true, filename: 'Users' }"
-      @exporting="usersData.onExporting" >
+      :ref="usersData.dataGridRef" :selection="{ mode: 'multiple', showCheckBoxesMode: 'always' }"
+      @editing-start="onEditClick"
+      :editing="{ allowUpdating: true, allowDeleting: true, allowAdding: true, confirmDelete: true }"
+      :export="{ enabled: true, filename: 'Users' }" @exporting="usersData.onExporting">
+      <DxMasterDetail :enabled="true" template="detailTemplate" />
+      <template #detailTemplate="{ data }">
+        <v-card class="pa-3 ml-5">
+          <div class="d-flex align-center">
+            <div class="ml-5">
+              <strong>Age:</strong> {{ data.data.age }}
+            </div>
+            <div class="ml-5">
+              <strong>Religion:</strong> {{ data.data.religion }}
+            </div>
+          </div>
+        </v-card>
 
-
-     
-    
+      </template>
       <DxToolbar>
-           <DxItem location="before">
-          <DxSearchPanel
-            :visible="true"
-            :width="240"
-            placeholder="Search users..."
-            style="margin-top: 5px;" 
-          />
+        <DxItem location="before">
+          <DxSearchPanel :visible="true" :width="240" placeholder="Search users..." style="margin-top: 5px  ;" />
         </DxItem>
-        <DxItem location="after" widget="dxButton" :options="{ icon: 'refresh', type: 'default', onClick: refreshData }" />
-        
+        <DxItem location="before" widget="dxButton"
+          :options="{ icon: 'plus', text: 'Add User', type: 'success', onClick: openAddDialog }" />
+        <DxItem location="after" widget="dxButton"
+          :options="{ icon: 'refresh', type: 'default', onClick: refreshData }" />
         <DxItem location="after" widget="dxDropDownButton" :options="{
           icon: 'export',
           text: 'Export',
           items: [
-            { text: 'Export as Excel'},
+            { text: 'Export as Excel' },
             { text: 'Export to PDF', onClick: () => usersData.onExportingPDF() }
           ],
           displayExpr: 'text',
@@ -41,8 +49,6 @@
             }
           }
         }" />
-
-
       </DxToolbar>
       <DxColumn data-field="id" caption="Id" alignment="center" width="150" />
       <DxColumn data-field="name" caption="Name" alignment="center" width="250" />
@@ -51,27 +57,53 @@
       <DxColumn data-field="email" caption="Email" alignment="center" width="500" />
       <DxColumn data-field="role" caption="Role" width="100" alignment="center" />
       <DxColumn type="buttons" width="120">
-        <DxButton name="edit" />
-        <DxButton name="delete" />
+        <DxButton name="edit" icon="edit" hint="Edit" />
+        <DxButton name="delete" icon="trash" hint="Delete" />
       </DxColumn>
     </DxDataGrid>
-
+    <v-dialog v-model="editDialog" max-width="600px">
+      <v-card>
+        <v-card-title>Edit User</v-card-title>
+        <v-card-text>
+          <v-text-field v-model="editUser.name" label="Name" />
+          <v-text-field v-model="editUser.email" label="Email" />
+          <v-select v-model="editUser.gender" :items="['Male', 'Female']" label="Gender" />
+          <v-text-field v-model="editUser.blood_group" label="blood_group" />
+          <v-text-field v-model="editUser.age" label="age" />
+          <v-text-field v-model="editUser.religion" label="religion" />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn text @click="editDialog = false">Cancel</v-btn>
+          <v-btn color="primary" text @click="saveUser">Save</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="addDialog" max-width="600px">
+      <v-card>
+        <v-card-title>Add New User</v-card-title>
+        <v-card-text>
+          <v-text-field v-model="newUser.name" label="Name" />
+          <v-text-field v-model="newUser.email" label="Email" />
+          <v-text-field v-model="newUser.password" label="Password" type="password" />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn text @click="addDialog = false">Cancel</v-btn>
+          <v-btn color="primary" text @click="createUser">Create</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
-
   <v-container class="mb-3">
-
   </v-container>
-  
 </template>
-
-
 <script setup>
 import Swal from 'sweetalert2';
-
 import "devextreme/dist/css/dx.light.css";
-import DxDataGrid, { DxColumn, DxButton, DxToolbar, DxItem,DxSearchPanel} from "devextreme-vue/data-grid";
-
-
+import DxDataGrid, { DxColumn, DxButton, DxToolbar, DxItem, DxSearchPanel, DxMasterDetail } from "devextreme-vue/data-grid";
+import { ref } from 'vue';
+import api from '../plugins/api';
 import dataSource from "../composables/dxgrid2.js";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
@@ -80,8 +112,49 @@ const usersData = dataSource(
   {},
   "/users",
   "/users"
-
 );
+const editDialog = ref(false);
+const editUser = ref({});
+const onEditClick = (e) => {
+  editUser.value = { ...e.data };
+  editDialog.value = true;
+};
+const saveUser = async () => {
+  try {
+    await api.put(`/users/${editUser.value.id}`, editUser.value);
+    editDialog.value = false;
+    usersData.refreshTable(usersData.dataGridRef);
+    Swal.fire("Success", "User updated successfully", "success");
+  } catch (error) {
+    console.error("Update failed:", error);
+    Swal.fire("Error", "Failed to update user", "error");
+  }
+};
+
+const addDialog = ref(false);
+const newUser = ref({
+  name: '',
+  email: '',
+  password: ''
+});
+const openAddDialog = () => {
+  newUser.value = { name: '', email: '', password: '' };
+  addDialog.value = true;
+};
+
+const createUser = async () => {
+  try {
+    await api.post('/users/register', newUser.value);
+    addDialog.value = false;
+    usersData.refreshTable(usersData.dataGridRef);
+    Swal.fire("Success", "User created successfully", "success");
+  } catch (error) {
+    console.error("User creation failed:", error);
+    Swal.fire("Error", "Failed to create user", "error");
+  }
+};
+
+
 const refreshData = () => {
   usersData.refreshTable(usersData.dataGridRef);
 };
@@ -92,6 +165,4 @@ const refreshData = () => {
 
 
 
-<style>
-
-</style>
+<style></style>

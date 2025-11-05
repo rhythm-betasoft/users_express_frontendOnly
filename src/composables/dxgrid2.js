@@ -22,7 +22,7 @@ export default function dataSource(url, params = {}, deleteURL = null, updateURL
     const paginationOption = {
         visible: true,
         displayMode: "compact",
-        allowedPageSizes: [5, 25, 50],
+        allowedPageSizes: [10, 25, 50],
         childAllowedPageSizes: [7, 15, 25],
         showPageSizeSelector: true,
         showInfo: true,
@@ -110,13 +110,10 @@ export default function dataSource(url, params = {}, deleteURL = null, updateURL
         },
     })
 const onExporting = async (e = null) => {
-  e && (e.cancel = true); // Cancel default export behavior
-
+  e && (e.cancel = true);
   const gridInstance = e?.component || dataGridRefName.value?.instance;
   if (!gridInstance) return;
-
   const selectedData = gridInstance.getSelectedRowsData();
-
   const result = await Swal.fire({
     title: 'Export Users',
     text: 'Do you want to export selected users or all users?',
@@ -126,18 +123,14 @@ const onExporting = async (e = null) => {
     cancelButtonText: 'All Users',
     reverseButtons: true,
   });
-
   let dataToExport = [];
-
   if (result.isConfirmed) {
-    // Export selected users
     if (selectedData.length === 0) {
       Swal.fire('No Selection', 'Please select at least one user.', 'warning');
       return;
     }
     dataToExport = selectedData;
   } else {
-    // Export all users
     try {
       const response = await api.get('/users');
       dataToExport = response.data.data;
@@ -147,9 +140,7 @@ const onExporting = async (e = null) => {
       return;
     }
   }
-
   if (dataToExport.length === 0) return;
-
   const workbook = new Workbook();
   const worksheet = workbook.addWorksheet("Exported Data");
   const columns = Object.keys(dataToExport[0]);
