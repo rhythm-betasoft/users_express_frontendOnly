@@ -128,10 +128,10 @@ export default {
   },
   methods: {
     async submitForm() {
-      if (!this.formData.age || !this.formData.gender || !this.formData.religion || !this.formData.blood_group) {
-        alert("All fields are required!");
-        return;
-      }
+      // if (!this.formData.age || !this.formData.gender || !this.formData.religion || !this.formData.blood_group) {
+      //   alert("All fields are required!");
+      //   return;
+      // }
 
       this.formData.age = Number(this.formData.age);
 
