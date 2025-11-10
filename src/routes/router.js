@@ -4,6 +4,7 @@ import Register from '../views/Register.vue';
 import Profile from '../views/Profile.vue';
 import EntireData from '../views/EntireData.vue';
 import { toast } from 'vue3-toastify';
+import SpendDetails from '../views/SpendDetails.vue'
 import 'vue3-toastify/dist/index.css';
 
 const routes = [
@@ -20,6 +21,11 @@ const routes = [
     component: EntireData,
     meta: { requiresAuth: true, requiresAdmin: true },
   },
+  {
+    name:'SpendDetails',
+    path:'/SpendDetails',
+    component:SpendDetails
+  }
 
 ];
 

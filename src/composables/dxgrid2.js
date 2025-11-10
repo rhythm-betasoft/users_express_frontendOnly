@@ -28,7 +28,7 @@ export default function dataSource(url, params = {}, deleteURL = null, updateURL
         showInfo: true,
         showNavigationButton: true,
         mobilePage: 5,
-        defaultPage: 10,
+        defaultPage: 10,  
     }
 
 
@@ -47,7 +47,7 @@ export default function dataSource(url, params = {}, deleteURL = null, updateURL
                 "skip",
                 "take",
                 "requireTotalCount",
-                "requireGroupCount",
+                "requireGroupCount",                                                                              
                 "sort",
                 "filter",
             ];
@@ -70,8 +70,8 @@ export default function dataSource(url, params = {}, deleteURL = null, updateURL
                 }
                 return {
                     data: response.data.data || [],
-                    summary: response.data.data?.summary || [],
-                    totalCount: response.data.totalCount ?? 10,
+                    summary: response.data.summary || [],
+                    totalCount: response.data.totalCount,
                 };
             } 
             catch (error) {

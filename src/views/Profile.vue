@@ -128,13 +128,11 @@ export default {
   },
   methods: {
     async submitForm() {
-      // if (!this.formData.age || !this.formData.gender || !this.formData.religion || !this.formData.blood_group) {
-      //   alert("All fields are required!");
-      //   return;
-      // }
-
+      if (!this.formData.age || !this.formData.gender || !this.formData.religion || !this.formData.blood_group) {
+        alert("All fields are required!");
+        return;
+      }
       this.formData.age = Number(this.formData.age);
-
       try {
         const response = await api.put(`/users/profile/${this.store.user.id}`, this.formData);
         console.log("Profile updated successfully:", response.data);

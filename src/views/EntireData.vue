@@ -10,24 +10,24 @@
       :ref="usersData.dataGridRef" :selection="{ mode: 'multiple', showCheckBoxesMode: 'always' }"
       @editing-start="onEditClick"
       :editing="{ allowUpdating: true, allowDeleting: true, allowAdding: true, confirmDelete: true }"
-      :export="{ enabled: true, filename: 'Users' }" @exporting="usersData.onExporting">
-      <DxMasterDetail :enabled="true" template="detailTemplate" />
-      <template #detailTemplate="{ data }">
-        <v-card class="pa-3 ml-5">
-          <div class="d-flex align-center">
-            <div class="ml-5">
-              <strong>Age:</strong> {{ data.data.age }}
-            </div>
-            <div class="ml-5">
-              <strong>Religion:</strong> {{ data.data.religion }}
-            </div>
-          </div>
-        </v-card>
+      :export="{ enabled: true, filename: 'Users' }" @exporting="usersData.onExporting" @row-prepared="onRowPrepared"       >
+      
+      <!-- <DxMasterDetail :enabled="true" template="master_detail" /> -->
+      <!-- <template #master_detail="{ data }">
+        <MasterDetail :master_detail_data="data.data" />
+      </template> -->
 
+
+  <DxMasterDetail :enabled="true" template="master_detail" />
+      <template #master_detail="{ data }">
+        <SpendDetails :spendData="data.data" />
       </template>
+
+
+
       <DxToolbar>
-        <DxItem location="before">
-          <DxSearchPanel :visible="true" :width="240" placeholder="Search users..." style="margin-top: 5px  ;" />
+        <DxItem location="center">
+          <DxSearchPanel :visible="true" :width="240" placeholder="Search users..." style="margin-top: 5px  ;"  />
         </DxItem>
         <DxItem location="before" widget="dxButton"
           :options="{ icon: 'plus', text: 'Add User', type: 'success', onClick: openAddDialog }" />
@@ -60,10 +60,29 @@
         <DxButton name="edit" icon="edit" hint="Edit" />
         <DxButton name="delete" icon="trash" hint="Delete" />
       </DxColumn>
-    </DxDataGrid>
+
+ <!-- <DxColumn data-field="total_salary" visible="false" />
+ <DxSummary>
+  <DxTotalItem
+    column="name"
+    summaryType="count"
+    showInColumn="name"
+    :customizeText="(e) => {
+      return `Total Users: ${e.value}`;
+    }"
+  />
+</DxSummary> -->
+ <DxSummary>
+        <DxTotalItem
+          column="salary"
+          summaryType="sum"
+          displayFormat="Total Salary: {0}"
+        />
+  </DxSummary>
+    </DxDataGrid> 
     <v-dialog v-model="editDialog" max-width="600px">
       <v-card>
-        <v-card-title>Edit User</v-card-title>
+        <v-card-title>Edit User</v-card-title>  
         <v-card-text>
           <v-text-field v-model="editUser.name" label="Name" />
           <v-text-field v-model="editUser.email" label="Email" />
@@ -101,18 +120,25 @@
 <script setup>
 import Swal from 'sweetalert2';
 import "devextreme/dist/css/dx.light.css";
-import DxDataGrid, { DxColumn, DxButton, DxToolbar, DxItem, DxSearchPanel, DxMasterDetail } from "devextreme-vue/data-grid";
-import { ref } from 'vue';
+import DxDataGrid, { DxColumn, DxButton, DxToolbar, DxItem, DxSearchPanel, DxMasterDetail, DxSummary,DxTotalItem } from "devextreme-vue/data-grid";
+import { ref,onMounted } from 'vue';
 import api from '../plugins/api';
 import dataSource from "../composables/dxgrid2.js";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import MasterDetail from '../views/MasterDetails.vue'
+import SpendDetails from '../views/SpendDetails.vue'
 const usersData = dataSource(
   "/users",
   {},
   "/users",
   "/users"
 );
+const summary = dataSource()
+onMounted(()=>{
+  console.log(usersData)
+  console.log(summary)
+})
 const editDialog = ref(false);
 const editUser = ref({});
 const onEditClick = (e) => {
@@ -130,7 +156,6 @@ const saveUser = async () => {
     Swal.fire("Error", "Failed to update user", "error");
   }
 };
-
 const addDialog = ref(false);
 const newUser = ref({
   name: '',
@@ -141,7 +166,6 @@ const openAddDialog = () => {
   newUser.value = { name: '', email: '', password: '' };
   addDialog.value = true;
 };
-
 const createUser = async () => {
   try {
     await api.post('/users/register', newUser.value);
@@ -153,16 +177,21 @@ const createUser = async () => {
     Swal.fire("Error", "Failed to create user", "error");
   }
 };
-
-
+const onRowPrepared = (e) => {
+  if (e.rowType === "data" && e.data.role === "admin") {
+    e.rowElement.classList.add("admin-row");
+  }
+};
 const refreshData = () => {
   usersData.refreshTable(usersData.dataGridRef);
 };
-
-
-
 </script>
 
 
 
-<style></style>
+<style>
+.admin-row {
+  background-color: rgb(86, 201, 86) !important;
+}
+
+</style>
