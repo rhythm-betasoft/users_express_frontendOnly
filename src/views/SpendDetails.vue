@@ -29,34 +29,58 @@ import dataSource from "../composables/dxgrid2.js";
 
 const spendsData = dataSource("/users/spends");
 </script> -->
-   <template>
-  <DxDataGrid
-    :data-source="normalizedData"
-    :show-borders="true"
-    :column-auto-width="true"
-    :row-alternation-enabled="true"
-    :paging="{ enabled: false }"
-    :filter-row="{ visible: false }"
-  >
-    <DxColumn data-field="salary" caption="Salary" format="currency" alignment="center" />
-    <DxColumn data-field="expenses" caption="Expenses" format="currency" alignment="center" />
-    <DxColumn data-field="saving" caption="Saving" format="currency" alignment="center" />
-  </DxDataGrid>
+  <template>
+  <v-container>
+
+   
+    <DxDataGrid
+      :data-source="normalizedData"
+      :show-borders="true"
+      :column-auto-width="true"
+      :row-alternation-enabled="true"
+      :paging="{ enabled: false }"
+      :filter-row="{ visible: false }"
+      class="mt-5"
+    >
+      <DxColumn data-field="salary" caption="Salary" format="currency" alignment="center" />
+      <DxColumn data-field="expenses" caption="Expenses" format="currency" alignment="center" />
+      <DxColumn data-field="saving" caption="Saving" format="currency" alignment="center" />
+    </DxDataGrid>
+     <DxPieChart :data-source="chartData" palette="Soft Pastel" type="doughnut" title="Salary vs Expenses vs Saving" >
+      <DxSeries argument-field="type" value-field="value">
+        <DxLabel :visible="true" format="currency" :connector="{ visible: true }" />
+      </DxSeries>
+      <DxTooltip :enabled="true" format="currency" />
+      <DxLegend
+        orientation="horizontal"
+        item-text-position="right"
+        horizontal-alignment="center"
+        vertical-alignment="bottom"
+      />
+    </DxPieChart>
+
+  </v-container>
 </template>
 
 <script setup>
 import { computed } from 'vue';
 import DxDataGrid, { DxColumn } from 'devextreme-vue/data-grid';
-
+import DxPieChart, { DxSeries, DxLabel, DxLegend, DxTooltip} from 'devextreme-vue/pie-chart';
 const props = defineProps({
   spendData: {
     type: Object,
     default: () => ({})
   }
 });
-
 const normalizedData = computed(() => {
   return props.spendData?.spends ?? [];
 });
+const chartData = computed(() => {
+  const spend = props.spendData.spends?.[0] || {};
+  return [
+    { type: 'Salary', value: Number(spend.salary || 0) },
+    { type: 'Expenses', value: Number(spend.expenses || 0) },
+    { type: 'Saving', value: Number(spend.saving || 0) },
+  ];
+});
 </script>
-

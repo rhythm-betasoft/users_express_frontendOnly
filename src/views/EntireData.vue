@@ -4,21 +4,18 @@
   </v-container>
   <v-container>
 
-    <DxDataGrid :data-source="usersData.dataSource" :remote-operations="true" :show-borders="true"
-      :column-auto-width="true" :row-alternation-enabled="true" :paging="{ pageSize: 10 }"
+    <DxDataGrid :data-source="usersData.dataSource" :remote-operations="{ filtering: true, sorting: true, paging: true }"
+      :show-borders="true" :column-auto-width="true" :row-alternation-enabled="true" :paging="{ pageSize: 10 }"
       :pager="usersData.paginationOption" :filter-row="{ visible: true, showOperationChooser: true }"
       :ref="usersData.dataGridRef" :selection="{ mode: 'multiple', showCheckBoxesMode: 'always' }"
       @editing-start="onEditClick"
       :editing="{ allowUpdating: true, allowDeleting: true, allowAdding: true, confirmDelete: true }"
-      :export="{ enabled: true, filename: 'Users' }" @exporting="usersData.onExporting" @row-prepared="onRowPrepared"       >
-      
-      <!-- <DxMasterDetail :enabled="true" template="master_detail" /> -->
-      <!-- <template #master_detail="{ data }">
-        <MasterDetail :master_detail_data="data.data" />
-      </template> -->
+      :export="{ enabled: true, filename: 'Users' }" @exporting="usersData.onExporting" @row-prepared="onRowPrepared">
+
+   
 
 
-  <DxMasterDetail :enabled="true" template="master_detail" />
+      <DxMasterDetail :enabled="true" template="master_detail" />
       <template #master_detail="{ data }">
         <SpendDetails :spendData="data.data" />
       </template>
@@ -27,7 +24,7 @@
 
       <DxToolbar>
         <DxItem location="center">
-          <DxSearchPanel :visible="true" :width="240" placeholder="Search users..." style="margin-top: 5px  ;"  />
+          <DxSearchPanel :visible="true" :width="240" placeholder="Search users..." style="margin-top: 5px  ;" />
         </DxItem>
         <DxItem location="before" widget="dxButton"
           :options="{ icon: 'plus', text: 'Add User', type: 'success', onClick: openAddDialog }" />
@@ -44,45 +41,39 @@
           onItemClick: (e) => {
             if (e.itemData.text === 'Export as Excel') {
               usersData.onExporting();
-            } else if (e.itemData.text === 'Export to PDF') {
+            }
+            else if (e.itemData.text === 'Export to PDF') {
               usersData.onExportingPDF();
             }
           }
         }" />
-      </DxToolbar>
+
+      </DxToolbar>  
+
       <DxColumn data-field="id" caption="Id" alignment="center" width="150" />
       <DxColumn data-field="name" caption="Name" alignment="center" width="250" />
       <DxColumn data-field="gender" caption="Gender" alignment="center" width="250" />
       <DxColumn data-field="blood_group" caption="Blood Group" alignment="center" />
       <DxColumn data-field="email" caption="Email" alignment="center" width="500" />
       <DxColumn data-field="role" caption="Role" width="100" alignment="center" />
+      <DxColumn data-field="salary" caption="Salary" alignment="center" data-type="number" format="currency"  />
       <DxColumn type="buttons" width="120">
         <DxButton name="edit" icon="edit" hint="Edit" />
         <DxButton name="delete" icon="trash" hint="Delete" />
+        <!-- <DxButton name="pin" icon="pin"  :onClick="e => togglePin(e.row.data)"/> -->
       </DxColumn>
+      <DxSummary>
+        <DxTotalItem column="salary" summaryType="sum" :customizeText="e => {
+          const val = Number(e.value);
+          return isNaN(val) ? 'Total Salary: $0' : `Total Salary: $${val.toLocaleString()}`;
+        }" />
+      </DxSummary>
 
- <!-- <DxColumn data-field="total_salary" visible="false" />
- <DxSummary>
-  <DxTotalItem
-    column="name"
-    summaryType="count"
-    showInColumn="name"
-    :customizeText="(e) => {
-      return `Total Users: ${e.value}`;
-    }"
-  />
-</DxSummary> -->
- <DxSummary>
-        <DxTotalItem
-          column="salary"
-          summaryType="sum"
-          displayFormat="Total Salary: {0}"
-        />
-  </DxSummary>
-    </DxDataGrid> 
+
+    </DxDataGrid>
     <v-dialog v-model="editDialog" max-width="600px">
       <v-card>
-        <v-card-title>Edit User</v-card-title>  
+        <v-card-title>Edit User</v-card-title>
         <v-card-text>
           <v-text-field v-model="editUser.name" label="Name" />
           <v-text-field v-model="editUser.email" label="Email" />
@@ -113,43 +104,84 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </v-container>
-  <v-container class="mb-3">
+<DxChart
+  id="religionChart"
+  :data-source="religionChartData"
+  title="Users by Religion"
+  style="margin-top: 40px;"
+>
+  <DxArgumentAxis />
+  <DxValueAxis />
+  <DxSeries
+    value-field="count"
+    argument-field="religion"
+    type="bar"
+    name="User Count"
+    color="#42a5f5"
+  />
+  <DxTooltip :enabled="true" />
+</DxChart>
+
   </v-container>
 </template>
 <script setup>
 import Swal from 'sweetalert2';
 import "devextreme/dist/css/dx.light.css";
-import DxDataGrid, { DxColumn, DxButton, DxToolbar, DxItem, DxSearchPanel, DxMasterDetail, DxSummary,DxTotalItem } from "devextreme-vue/data-grid";
-import { ref,onMounted } from 'vue';
+import DxDataGrid, { DxColumn, DxButton, DxToolbar, DxItem, DxSearchPanel, DxMasterDetail, DxSummary, DxTotalItem } from "devextreme-vue/data-grid";
+import { DxChart, DxSeries, DxArgumentAxis, DxValueAxis, DxTitle, DxTooltip } from 'devextreme-vue/chart';
+import { ref, onMounted,computed } from 'vue';
 import api from '../plugins/api';
 import dataSource from "../composables/dxgrid2.js";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import MasterDetail from '../views/MasterDetails.vue'
 import SpendDetails from '../views/SpendDetails.vue'
+
 const usersData = dataSource(
   "/users",
   {},
   "/users",
   "/users"
 );
-const summary = dataSource()
-onMounted(()=>{
-  console.log(usersData)
-  console.log(summary)
-})
+
+
+const religionChartData = ref([]);
 const editDialog = ref(false);
 const editUser = ref({});
 const onEditClick = (e) => {
   editUser.value = { ...e.data };
   editDialog.value = true;
 };
+const updateReligionChart = () => {
+  const grid = usersData.dataGridRef.value?.instance;
+  if (!grid) return;
+
+  const users = grid.getDataSource()?.items() || [];
+
+  const counts = {};
+  users.forEach(user => {
+    const religion = user.religion || "Unknown";
+    counts[religion] = (counts[religion] || 0) + 1;
+  });
+
+  religionChartData.value = Object.entries(counts).map(([religion, count]) => ({
+    religion,
+    count
+  }));
+};
+onMounted(() => {
+  setTimeout(updateReligionChart, 500); 
+});
+
+
 const saveUser = async () => {
   try {
     await api.put(`/users/${editUser.value.id}`, editUser.value);
     editDialog.value = false;
     usersData.refreshTable(usersData.dataGridRef);
+       setTimeout(() => {
+      updateReligionChart();
+    }, 300);
     Swal.fire("Success", "User updated successfully", "success");
   } catch (error) {
     console.error("Update failed:", error);
@@ -178,13 +210,36 @@ const createUser = async () => {
   }
 };
 const onRowPrepared = (e) => {
-  if (e.rowType === "data" && e.data.role === "admin") {
-    e.rowElement.classList.add("admin-row");
+  if (e.rowType === "data") {
+    const rowEl = e.rowElement;
+    if (e.data.role === "admin") {
+      rowEl.classList.add("admin-row");
+    }
+    // if (e.data.pinned) {
+    //   rowEl.classList.add("pinned-row");
+    // }
   }
 };
 const refreshData = () => {
   usersData.refreshTable(usersData.dataGridRef);
 };
+// const togglePin = (rowData) => {
+//   rowData.pinned = !rowData.pinned;
+//   const grid = usersData.dataGridRef.value?.instance;
+//   if (!grid) return;
+//   const currentData = grid.getDataSource().items();
+//   const updatedData = currentData.map(row => ({ ...row }));
+//   updatedData.sort((a, b) => {
+//     if (a.pinned && !b.pinned) return -1;
+//     if (!a.pinned && b.pinned) return 1;
+//     return a.id - b.id;
+//   });
+//   grid.option("dataSource", updatedData);
+//   grid.refresh();
+// };
+
+
+
 </script>
 
 
@@ -192,6 +247,13 @@ const refreshData = () => {
 <style>
 .admin-row {
   background-color: rgb(86, 201, 86) !important;
+}
+/* .pinned-row {
+  background-color: #fff9c4 !important;
+} */
+#religionChart {
+  max-width: 600px;
+  margin: 40px auto;
 }
 
 </style>
