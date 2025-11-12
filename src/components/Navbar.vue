@@ -4,7 +4,7 @@
         <v-spacer></v-spacer>
         <v-btn :to="{ path: '/Profile' }">Profile</v-btn>
         <v-btn :to="{ path: '/EntireData' }">All Users</v-btn>
-         <v-btn :to="{ path: '/SpendDetails' }">Spends</v-btn>
+         <!-- <v-btn :to="{ path: '/SpendDetails' }">Spends</v-btn> -->
 
 
         <v-btn>

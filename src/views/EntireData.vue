@@ -5,14 +5,15 @@
   <v-container>
 
     <DxDataGrid :data-source="usersData.dataSource" :remote-operations="{ filtering: true, sorting: true, paging: true }"
+
       :show-borders="true" :column-auto-width="true" :row-alternation-enabled="true" :paging="{ pageSize: 10 }"
       :pager="usersData.paginationOption" :filter-row="{ visible: true, showOperationChooser: true }"
       :ref="usersData.dataGridRef" :selection="{ mode: 'multiple', showCheckBoxesMode: 'always' }"
       @editing-start="onEditClick"
       :editing="{ allowUpdating: true, allowDeleting: true, allowAdding: true, confirmDelete: true }"
-      :export="{ enabled: true, filename: 'Users' }" @exporting="usersData.onExporting" @row-prepared="onRowPrepared">
+      :export="{ enabled: true, filename: 'Users' }" @exporting="usersData.onExporting" @row-prepared="onRowPrepared" >
 
-   
+
 
 
       <DxMasterDetail :enabled="true" template="master_detail" />
@@ -48,25 +49,32 @@
           }
         }" />
 
-      </DxToolbar>  
+      </DxToolbar>
 
       <DxColumn data-field="id" caption="Id" alignment="center" width="150" />
       <DxColumn data-field="name" caption="Name" alignment="center" width="250" />
-      <DxColumn data-field="gender" caption="Gender" alignment="center" width="250" />
+     <DxColumn data-field="gender" caption="Gender" alignment="center" width="250" :groupIndex="0" />
+
       <DxColumn data-field="blood_group" caption="Blood Group" alignment="center" />
       <DxColumn data-field="email" caption="Email" alignment="center" width="500" />
-      <DxColumn data-field="role" caption="Role" width="100" alignment="center" />
-      <DxColumn data-field="salary" caption="Salary" alignment="center" data-type="number" format="currency"  />
+      <DxColumn data-field="role" caption="Role" width="100" alignment="center"  />
+      <DxColumn data-field="salary" caption="Salary" alignment="center" data-type="number" format="currency" />
       <DxColumn type="buttons" width="120">
         <DxButton name="edit" icon="edit" hint="Edit" />
         <DxButton name="delete" icon="trash" hint="Delete" />
-        <!-- <DxButton name="pin" icon="pin"  :onClick="e => togglePin(e.row.data)"/> -->
+        <DxButton name="pin" icon="pin" :onClick="e => togglePin(e.row.data)" />
       </DxColumn>
       <DxSummary>
         <DxTotalItem column="salary" summaryType="sum" :customizeText="e => {
           const val = Number(e.value);
           return isNaN(val) ? 'Total Salary: $0' : `Total Salary: $${val.toLocaleString()}`;
         }" />
+        <DxGroupItem
+      column="salary"
+      summary-type="sum"
+      show-in-group-footer="true" 
+    />
+
       </DxSummary>
 
 
@@ -104,32 +112,21 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-<DxChart
-  id="religionChart"
-  :data-source="religionChartData"
-  title="Users by Religion"
-  style="margin-top: 40px;"
->
-  <DxArgumentAxis />
-  <DxValueAxis />
-  <DxSeries
-    value-field="count"
-    argument-field="religion"
-    type="bar"
-    name="User Count"
-    color="#42a5f5"
-  />
-  <DxTooltip :enabled="true" />
-</DxChart>
+    <DxChart id="religionChart" :data-source="religionChartData" title="Users by Religion" style="margin-top: 40px;">
+      <DxArgumentAxis />
+      <DxValueAxis />
+      <DxSeries value-field="count" argument-field="religion" type="bar" name="User Count" color="#42a5f5" />
+      <DxTooltip :enabled="true" />
+    </DxChart>
 
   </v-container>
 </template>
 <script setup>
 import Swal from 'sweetalert2';
 import "devextreme/dist/css/dx.light.css";
-import DxDataGrid, { DxColumn, DxButton, DxToolbar, DxItem, DxSearchPanel, DxMasterDetail, DxSummary, DxTotalItem } from "devextreme-vue/data-grid";
+import DxDataGrid, { DxColumn, DxButton, DxToolbar, DxItem, DxSearchPanel, DxMasterDetail, DxSummary, DxTotalItem,DxGroupItem } from "devextreme-vue/data-grid";
 import { DxChart, DxSeries, DxArgumentAxis, DxValueAxis, DxTitle, DxTooltip } from 'devextreme-vue/chart';
-import { ref, onMounted,computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import api from '../plugins/api';
 import dataSource from "../composables/dxgrid2.js";
 import jsPDF from "jspdf";
@@ -146,31 +143,22 @@ const usersData = dataSource(
 
 
 const religionChartData = ref([]);
-const editDialog = ref(false);
+const editDialog = ref(false);                        
 const editUser = ref({});
 const onEditClick = (e) => {
   editUser.value = { ...e.data };
   editDialog.value = true;
 };
-const updateReligionChart = () => {
-  const grid = usersData.dataGridRef.value?.instance;
-  if (!grid) return;
-
-  const users = grid.getDataSource()?.items() || [];
-
-  const counts = {};
-  users.forEach(user => {
-    const religion = user.religion || "Unknown";
-    counts[religion] = (counts[religion] || 0) + 1;
-  });
-
-  religionChartData.value = Object.entries(counts).map(([religion, count]) => ({
-    religion,
-    count
-  }));
+const fetchReligionCounts = async () => {
+  try {
+    const response = await api.get('/users/religion-counts');
+    religionChartData.value = response.data; 
+  } catch (error) {
+    console.error("Error fetching religion counts:", error);
+  }
 };
 onMounted(() => {
-  setTimeout(updateReligionChart, 500); 
+  fetchReligionCounts();
 });
 
 
@@ -179,7 +167,7 @@ const saveUser = async () => {
     await api.put(`/users/${editUser.value.id}`, editUser.value);
     editDialog.value = false;
     usersData.refreshTable(usersData.dataGridRef);
-       setTimeout(() => {
+    setTimeout(() => {
       updateReligionChart();
     }, 300);
     Swal.fire("Success", "User updated successfully", "success");
@@ -215,45 +203,38 @@ const onRowPrepared = (e) => {
     if (e.data.role === "admin") {
       rowEl.classList.add("admin-row");
     }
-    // if (e.data.pinned) {
-    //   rowEl.classList.add("pinned-row");
-    // }
+    if (e.data.pinned) {
+      rowEl.classList.add("pinned-row");
+    }
   }
 };
 const refreshData = () => {
   usersData.refreshTable(usersData.dataGridRef);
 };
-// const togglePin = (rowData) => {
-//   rowData.pinned = !rowData.pinned;
-//   const grid = usersData.dataGridRef.value?.instance;
-//   if (!grid) return;
-//   const currentData = grid.getDataSource().items();
-//   const updatedData = currentData.map(row => ({ ...row }));
-//   updatedData.sort((a, b) => {
-//     if (a.pinned && !b.pinned) return -1;
-//     if (!a.pinned && b.pinned) return 1;
-//     return a.id - b.id;
-//   });
-//   grid.option("dataSource", updatedData);
-//   grid.refresh();
-// };
-
-
-
+const togglePin = async (rowData) => {
+  try {
+    await api.put(`/users/${rowData.id}/toggle-pin`);
+    usersData.refreshTable(usersData.dataGridRef);
+    console.log(rowData);
+  }
+  catch (error) {
+    console.error("Error toggling pin:", error);
+  }
+};
 </script>
-
 
 
 <style>
 .admin-row {
   background-color: rgb(86, 201, 86) !important;
 }
-/* .pinned-row {
+
+.pinned-row {
   background-color: #fff9c4 !important;
-} */
+}
+
 #religionChart {
   max-width: 600px;
   margin: 40px auto;
 }
-
 </style>

@@ -79,7 +79,7 @@ const chartData = computed(() => {
   const spend = props.spendData.spends?.[0] || {};
   return [
     { type: 'Salary', value: Number(spend.salary || 0) },
-    { type: 'Expenses', value: Number(spend.expenses || 0) },
+    { type: 'Expenses', value: Number(spend.expenses || 0) }, 
     { type: 'Saving', value: Number(spend.saving || 0) },
   ];
 });

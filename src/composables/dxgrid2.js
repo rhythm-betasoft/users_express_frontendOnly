@@ -42,46 +42,42 @@ export default function dataSource(url, params = {}, deleteURL = null, updateURL
                 throw new Error("Failed to fetch item by key");
             }
         },
-        load: async function (loadOptions) {
-            const dxKeys = [
-                "skip",
-                "take",
-                "requireTotalCount",
-                "requireGroupCount",                                                                              
-                "sort",
-                "filter",
-            ];
-            let queryParams = params || {};
-            Object.keys(params).forEach((key) => {
-                if (dxKeys.includes(key)) {
-                    delete queryParams[key];
-                }
-            });
-            dxKeys.forEach((i) => {
-                if (i in loadOptions && isNotEmpty(loadOptions[i])) {
-                    queryParams[i] = `${JSON.stringify(loadOptions[i])}`;
-                }
-            });
-            console.log("Query Params:", queryParams);
-            try {
-                const response = await api.get(url, { params: queryParams, });
-                if (skipLoader.value) {
-                    skipLoader.value = false;
-                }
-                return {
-                    data: response.data.data || [],
-                    summary: response.data.summary || [],
-                    totalCount: response.data.totalCount,
-                };
-            } 
-            catch (error) {
-                console.error("Error loading data:", error);
-                if (skipLoader.value) {
-                    skipLoader.value = false;
-                }
-                throw new Error("Data Loading Error");
-            }
-        },
+     load: async function (loadOptions) {
+    const dxKeys = ["skip", "take", "requireTotalCount", "requireGroupCount", "sort", "filter"];
+    let queryParams = params || {};
+    Object.keys(params).forEach((key) => {
+        if (dxKeys.includes(key)) {
+            delete queryParams[key];
+        }
+    });
+    dxKeys.forEach((i) => {
+        if (i in loadOptions && isNotEmpty(loadOptions[i])) {
+            queryParams[i] = `${JSON.stringify(loadOptions[i])}`;
+        }
+    });
+
+    console.log("Query Params:", queryParams);
+
+    try {
+        const response = await api.get(url, { params: queryParams });
+        const religionCountsResponse = await api.get('/users/religion-counts');
+        console.log("Religion Counts Response:", religionCountsResponse.data);
+
+        return {
+            data: response.data.data || [],
+            summary: response.data.summary || [],
+            totalCount: response.data.totalCount,
+            religionCounts: religionCountsResponse.data,  
+        };
+    } catch (error) {
+        console.error("Error loading data:", error);
+        if (skipLoader.value) {
+            skipLoader.value = false;
+        }
+        throw new Error("Data Loading Error");
+    }
+}
+,
         insert: async function (values) {
             try {
                 await axios.post(insertURL, values);
