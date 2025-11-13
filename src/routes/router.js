@@ -6,6 +6,7 @@ import EntireData from '../views/EntireData.vue';
 import { toast } from 'vue3-toastify';
 import SpendDetails from '../views/SpendDetails.vue'
 import 'vue3-toastify/dist/index.css';
+import TwoFA from '../views/TwoFA.vue'
 
 const routes = [
   { name: 'Register', path: '/', component: Register },
@@ -20,11 +21,16 @@ const routes = [
     path: '/EntireData',
     component: EntireData,
     meta: { requiresAuth: true, requiresAdmin: true },
-  },
+  },                
   {
     name:'SpendDetails',
     path:'/SpendDetails',
     component:SpendDetails
+  },
+  {
+    name:'TwoFA',
+    path:'/TwoFA',
+    component:TwoFA           
   }
 
 ];

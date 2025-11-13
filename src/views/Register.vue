@@ -127,29 +127,44 @@ export default {
             }
         },
 
-        async login() {
-            try {
-                const response = await api.post('/users/login', {
-                    email: this.email,
-                    password: this.password,
-                });
-                const { accesstoken, refreshtoken, user } = response.data;
-                const store = authStore()
-                store.setAuth(accesstoken, refreshtoken, user);
-                if (accesstoken && refreshtoken) {
-                    console.log('Access Token:', accesstoken);
-                    console.log('Refresh Token:', refreshtoken);
-                } else {
-                    console.error('Tokens not found in response data');
-                }
-                toast.success("Login successful!");
-                this.$router.push('/profile');
-
-            } catch (error) {
-                console.error("Login error:", error);
-                toast.error(errorMessage);
-            }
+    async login() {
+  try {
+    const response = await api.post('/users/login', {
+      email: this.email,
+      password: this.password,
+    });
+    const { message, accesstoken, refreshtoken, user, qr, otpauthUrl } = response.data;
+    const store = authStore();
+    if (message?.includes("2FA setup required") || message?.includes("2FA verification required")) {
+      this.$router.push({
+        path: '/TwoFA',
+        query: {
+          qr: qr || '',
+          otpauthUrl: otpauthUrl || '',
+          userId: user.id
         }
+      });
+      return;
+    }
+    store.setAuth(accesstoken, refreshtoken, user);
+
+    if (accesstoken && refreshtoken) {
+      console.log('Access Token:', accesstoken);
+      console.log('Refresh Token:', refreshtoken);
+    } else {
+      console.error('Tokens not found in response data');
+    }
+
+    toast.success("Login successful!");
+    this.$router.push('/profile');
+
+  } catch (error) {
+    console.error("Login error:", error);
+    const errorMessage = error.response?.data?.message || "Login failed.";
+    toast.error(errorMessage);
+  }
+}
+
     }
 };
 </script>

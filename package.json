@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fingerprintjs/fingerprintjs": "^5.0.1",
     "@mdi/font": "^7.4.47",
     "axios": "^1.12.2",
     "devextreme": "^25.1.6",
