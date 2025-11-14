@@ -7,7 +7,7 @@ import { toast } from 'vue3-toastify';
 import SpendDetails from '../views/SpendDetails.vue'
 import 'vue3-toastify/dist/index.css';
 import TwoFA from '../views/TwoFA.vue'
-
+import Announcement from '../views/Announcement.vue'
 const routes = [
   { name: 'Register', path: '/', component: Register },
   {
@@ -31,6 +31,11 @@ const routes = [
     name:'TwoFA',
     path:'/TwoFA',
     component:TwoFA           
+  },
+  {
+    name:'Announcement',
+    path:'/Announcement',
+    component:Announcement
   }
 
 ];
