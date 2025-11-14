@@ -22,7 +22,7 @@
       </div>
       <v-checkbox v-model="rememberDevice" label="Remember this device " />
 
-    </v-card>
+    </v-card> 
   </v-container>
 </template>
 
