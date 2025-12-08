@@ -15,8 +15,8 @@
 </template>
 <script>
 import { inject } from 'vue'
-import api from '../../plugins/api.js'
-import { authStore } from "../../store/authStore.js";
+import api from '@/plugins/api.js'
+import { authStore } from "@/store/authStore.js";
 export default {
   name: "OtpDialog",
   setup() {

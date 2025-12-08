@@ -107,10 +107,10 @@
   <OtpDialog v-if="showOTPDialog" @closed="closeOtpDialog" />
 </template>
 <script>
-import { authStore } from "../store/authStore.js";
-import api from '../plugins/api.js'
+import { authStore } from "@/store/authStore.js";
+import api from '@/plugins/api.js'
 import { inject } from 'vue'
-import OtpDialog from '../components/Dialogs/OtpDialog.vue'
+import OtpDialog from '@/components/Dialogs/OtpDialog.vue'
 export default {
   components: {
     OtpDialog

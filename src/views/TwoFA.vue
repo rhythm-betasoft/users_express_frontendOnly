@@ -25,8 +25,8 @@
 </template>
 
 <script>
-import api from '../plugins/api';
-import { authStore } from '../store/authStore';
+import api from '@/plugins/api';
+import { authStore } from '@/store/authStore';
 import {inject} from 'vue'
 export default {
    setup() {

@@ -7,7 +7,7 @@
   </DxChart>
 </template>
 <script>
-import api from '../plugins/api';
+import api from '@/plugins/api';
 import { inject } from 'vue';
 export default {
   name: 'ReligionChart',

@@ -67,14 +67,14 @@
 </template>
 
 <script>
-import datagridMixin from "../mixins/dataGridMixin.js";
-import SpendDetails from "../components/SpendDetails.vue";
+import datagridMixin from "@/mixins/dataGridMixin.js";
+import SpendDetails from "@/components/SpendDetails.vue";
 import DxTabPanel from "devextreme-vue/tab-panel";
-import AddUserDialog from "../components/Dialogs/AddUserDialog.vue";
-import ReligionChart from "../components/ReligionChart.vue";
-import { roles } from "../enums/roles.js";
-import api from "../plugins/api";
-import dataSource from "../mixins/dataGridMixin.js";
+import AddUserDialog from "@/components/Dialogs/AddUserDialog.vue";
+import ReligionChart from "@/components/ReligionChart.vue";
+import { roles } from "@/enums/roles.js";
+import api from "@/plugins/api";
+import dataSource from "@/mixins/dataGridMixin.js";
 import {inject} from 'vue'
 export default {
   mixins: [datagridMixin],

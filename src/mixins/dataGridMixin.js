@@ -5,7 +5,7 @@ import { Workbook } from "exceljs";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import api from "../plugins/api";
+import api from "@/plugins/api";
 import Swal from "sweetalert2";
 
 const isNotEmpty = (value) => {

@@ -1,14 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { authStore } from '../store/authStore';
+import { authStore } from '@/store/authStore';
 import { toast } from 'vue3-toastify';
 import { defineAsyncComponent } from 'vue';
 import 'vue3-toastify/dist/index.css';
-import { roles } from '../enums/roles';
-const Register = defineAsyncComponent(() => import('../views/Register.vue'));
-const Profile = defineAsyncComponent(() => import('../views/Profile.vue'));
-const UserList = defineAsyncComponent(() => import('../views/UserList.vue'));
-const TwoFA = defineAsyncComponent(() => import('../views/TwoFA.vue'));
-const AnnouncementList = defineAsyncComponent(() => import('../views/AnnouncementList.vue'));
+import { roles } from '@/enums/roles';
+const Register = defineAsyncComponent(() => import('@/views/Register.vue'));
+const Profile = defineAsyncComponent(() => import('@/views/Profile.vue'));
+const UserList = defineAsyncComponent(() => import('@/views/UserList.vue'));
+const TwoFA = defineAsyncComponent(() => import('@/views/TwoFA.vue'));
+const AnnouncementList = defineAsyncComponent(() => import('@/views/AnnouncementList.vue'));
 const routes = [
   { name: 'register', path: '/', component: Register },
   {

@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { authStore } from '../store/authStore.js'
+import { authStore } from '@/store/authStore.js'
 
 export default {
     name: "Navbar",

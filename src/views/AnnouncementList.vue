@@ -54,10 +54,10 @@
 
 <script>
 import { inject } from 'vue'
-import { authStore } from '../store/authStore'
-import api from '../plugins/api'
-import { roles } from '../enums/roles';
-import addAnnouncementDialog from '../components/Dialogs/AddAnnouncementDialog.vue'
+import { authStore } from '@/store/authStore'
+import api from '@/plugins/api'
+import { roles } from '@/enums/roles';
+import addAnnouncementDialog from '@/components/Dialogs/AddAnnouncementDialog.vue'
 export default {
   components: {
     addAnnouncementDialog
