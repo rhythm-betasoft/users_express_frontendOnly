@@ -10,7 +10,7 @@ import { aliases, mdi } from 'vuetify/iconsets/mdi';
 import { createPinia } from 'pinia';
 import piniaPersist from 'pinia-plugin-persistedstate';
 import api from './plugins/api.js';
-
+import devextreme from './plugins/devextreme.js';
 const pinia = createPinia();
 pinia.use(piniaPersist);
 
@@ -25,4 +25,4 @@ const vuetify = createVuetify({
 });
 const app = createApp(App);
 app.config.globalProperties.$api = api;
-app.use(router).use(vuetify).use(pinia).mount('#app');
+app.use(router).use(devextreme).use(vuetify).use(pinia).mount('#app');

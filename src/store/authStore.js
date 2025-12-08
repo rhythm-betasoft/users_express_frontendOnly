@@ -1,10 +1,9 @@
-import { defineStore } from 'pinia';
-import * as jwt_decode from 'jwt-decode'; 
-
-export const authStore = defineStore('user', {
+import { defineStore } from "pinia";
+import { jwtDecode } from "jwt-decode";
+export const authStore = defineStore("user", {
   state: () => ({
-    accessToken: '',
-    refreshToken: '',
+    accessToken: "",
+    refreshToken: "",
     user: null,
   }),
   actions: {
@@ -14,8 +13,8 @@ export const authStore = defineStore('user', {
       this.user = user;
     },
     logout() {
-      this.accessToken = '';
-      this.refreshToken = '';
+      this.accessToken = "";
+      this.refreshToken = "";
       this.user = null;
     },
     isLoggedIn() {
@@ -24,18 +23,17 @@ export const authStore = defineStore('user', {
     decodeToken() {
       try {
         if (this.accessToken) {
-          return jwt_decode.decode(this.accessToken); 
+          return jwtDecode(this.accessToken);
         }
         return null;
-      } 
-      catch (error) {
+      } catch (error) {
         return null;
       }
     },
     userRole() {
       const decoded = this.decodeToken();
       if (decoded) {
-        this.user = { ...this.user, role: decoded.role }; 
+        this.user = { ...this.user, role: decoded.role };
       }
     },
   },

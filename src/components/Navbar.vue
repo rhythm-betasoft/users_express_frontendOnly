@@ -2,10 +2,9 @@
     <v-app-bar color="#E8E1C6">
         <v-btn class="ml-5" :to="{ path: '/' }">Register</v-btn>
         <v-spacer></v-spacer>
-        <v-btn :to="{ path: '/Profile' }">Profile</v-btn>
-        <v-btn :to="{ path: '/EntireData' }">All Users</v-btn>
-        <v-btn :to="{path:'/Announcement'}">Announcements</v-btn>
-         <!-- <v-btn :to="{ path: '/SpendDetails' }">Spends</v-btn> -->
+        <v-btn :to="{ path: '/profile' }">Profile</v-btn>
+        <v-btn :to="{ path: '/users' }">All Users</v-btn>
+        <v-btn :to="{path:'/announcements'}">Announcements</v-btn>
         <v-btn>
             <v-icon left>mdi-account </v-icon>
             <v-menu activator="parent">
