@@ -19,7 +19,7 @@ export default {
   },
   computed: {
     normalizedData() {
-      return this.spendData?.spends ?? [];
+      return this.spendData.spends ;
     },
   }
 };

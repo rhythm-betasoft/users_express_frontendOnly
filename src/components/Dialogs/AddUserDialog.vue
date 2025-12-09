@@ -17,13 +17,9 @@
 </template>
 
 <script>
-import { inject } from 'vue'
 export default {
+  inject:['toast'],
   name: "AddUserDialog",
-    setup() {
-    const toast = inject('toast');
-    return { toast };
-  },
   data() {
     return {
       addmodalvalue:true,
@@ -39,7 +35,7 @@ export default {
       this.$emit('closed', data);
     },
     submitForm() {
-      this.$api.post('/users/register', this.user)
+      this.$api.post('/user/register', this.user)
         .then(({data}) => {
           this.toast.show(data.message,'success')
           this.closeDialog(true);

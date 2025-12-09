@@ -75,18 +75,14 @@ import ReligionChart from "@/components/ReligionChart.vue";
 import { roles } from "@/enums/roles.js";
 import api from "@/plugins/api";
 import dataSource from "@/mixins/dataGridMixin.js";
-import {inject} from 'vue'
 export default {
   mixins: [datagridMixin],
+  inject:['toast'],
   components: {
     SpendDetails,
     DxTabPanel,
     AddUserDialog,
     ReligionChart,
-  },
-  setup() {
-    const toast = inject('toast');
-    return { toast };
   },
   data() {
     return {

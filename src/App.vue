@@ -10,8 +10,8 @@
 <script >
 import Navbar from '@/components/Navbar.vue';
 import { authStore } from '@/store/authStore'; 
-import swalToast from '@/composables/toast';
-import Utils from '@/composables/utils'
+import swalToast from '@/utils/toast.js';
+import Utils from '@/utils/utils.js'
 const toastService=new swalToast();
 const utils=new Utils();
 export default {

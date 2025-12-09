@@ -59,13 +59,13 @@ import api from '@/plugins/api'
 import { roles } from '@/enums/roles';
 import addAnnouncementDialog from '@/components/Dialogs/AddAnnouncementDialog.vue'
 export default {
+  inject:['toast'],
   components: {
     addAnnouncementDialog
   },
   setup() {
-    const toast = inject('toast');
     const utils = inject('utils')
-    return { toast, utils };
+    return {utils };
   },
   data() {
     return {
@@ -101,7 +101,7 @@ export default {
       if (!announcement.newComment) return;
       api.post('/comment', {
         content: announcement.newComment,
-        userId: this.store.user?.id,
+        userId: this.store.user.id,
         announcementId: announcement.id
       })
         .then(({ data }) => {

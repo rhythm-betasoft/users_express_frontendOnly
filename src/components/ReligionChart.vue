@@ -8,9 +8,9 @@
 </template>
 <script>
 import api from '@/plugins/api';
-import { inject } from 'vue';
 export default {
-  name: 'ReligionChart',
+  inject:['toast'],
+   name: 'ReligionChart',
   setup() {
     const toast = inject('toast');
     return { toast };

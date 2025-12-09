@@ -74,13 +74,8 @@
 <script>
 import api from '../plugins/api.js'
 import { authStore } from '../store/authStore'
-import { inject } from 'vue'
-
 export default {
-  setup() {
-    const toast = inject('toast');
-    return { toast };
-  },
+inject:['toast'],
   data() {
     return {
       flag: false,

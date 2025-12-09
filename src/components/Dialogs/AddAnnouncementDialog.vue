@@ -16,13 +16,9 @@
 </template>
 
 <script>
-import { inject } from 'vue'
 export default {
+  inject:['toast'],
   name: "addAnnouncementDialog",
-  setup() {
-    const toast = inject('toast');
-    return { toast };
-  },
   data() {
     return {
       addmodalvalue: true,

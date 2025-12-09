@@ -109,15 +109,11 @@
 <script>
 import { authStore } from "@/store/authStore.js";
 import api from '@/plugins/api.js'
-import { inject } from 'vue'
 import OtpDialog from '@/components/Dialogs/OtpDialog.vue'
 export default {
+  inject:['toast'],
   components: {
     OtpDialog
-  },
-  setup() {
-    const toast = inject('toast');
-    return { toast };
   },
   data() {
     const store = authStore();

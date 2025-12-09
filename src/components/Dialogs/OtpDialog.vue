@@ -14,20 +14,16 @@
   </v-dialog>
 </template>
 <script>
-import { inject } from 'vue'
 import api from '@/plugins/api.js'
 import { authStore } from "@/store/authStore.js";
 export default {
+  inject:['toast'],
   name: "OtpDialog",
-  setup() {
-    const toast = inject('toast');
-    const store = authStore();
-    return { toast, store };
-  },
   data() {
     return {
       addmodalvalue: true, 
-      otp: '' 
+      otp: '' ,
+      store:authStore()
     };
   },
   methods: {
