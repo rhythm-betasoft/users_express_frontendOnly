@@ -1,7 +1,7 @@
 import Swal from "sweetalert2";
 
 class swalToast {
-  show(message, type, position = 'top-right', timer = 3000) {
+  show(message, type, position = "top-right", timer = 3000) {
     Swal.fire({
       toast: true,
       position,
@@ -9,22 +9,22 @@ class swalToast {
       title: message,
       showConfirmButton: false,
       timerProgressBar: true,
-      timer: type === 'error' && timer === 3000 ? 7000 : timer,
-      confirmButtonColor: '#ff0000'
+      timer: type === "error" && timer === 3000 ? 7000 : timer,
+      confirmButtonColor: "#ff0000",
     });
   }
 
-  confirm(message, title = 'Are you sure?') {
+  confirm(message, title = "Are you sure?") {
     return Swal.fire({
       title,
       text: message,
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes',
-      cancelButtonText: 'No'
-    }).then(r => r.isConfirmed);
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+      cancelButtonText: "No",
+    }).then((r) => r.isConfirmed);
   }
 }
 
