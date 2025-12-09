@@ -1,50 +1,43 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { authStore } from '../store/authStore';
-import Register from '../views/Register.vue';
-import Profile from '../views/Profile.vue';
-import EntireData from '../views/EntireData.vue';
+import { authStore } from '@/store/authStore';
 import { toast } from 'vue3-toastify';
-import SpendDetails from '../views/SpendDetails.vue'
+import { defineAsyncComponent } from 'vue';
 import 'vue3-toastify/dist/index.css';
-import TwoFA from '../views/TwoFA.vue'
-import Announcement from '../views/Announcement.vue'
+import { roles } from '@/enums/roles';
+const Register = defineAsyncComponent(() => import('@/views/Register.vue'));
+const Profile = defineAsyncComponent(() => import('@/views/Profile.vue'));
+const UserList = defineAsyncComponent(() => import('@/views/UserList.vue'));
+const TwoFA = defineAsyncComponent(() => import('@/views/TwoFA.vue'));
+const AnnouncementList = defineAsyncComponent(() => import('@/views/AnnouncementList.vue'));
 const routes = [
-  { name: 'Register', path: '/', component: Register },
+  { name: 'register', path: '/', component: Register },
   {
-    name: 'Profile',
-    path: '/Profile',
+    name: 'profile',
+    path: '/profile',
     component: Profile,
     meta: { requiresAuth: true },
   },
   {
-    name: 'EntireData',
-    path: '/EntireData',
-    component: EntireData,
+    name: 'user-list',
+    path: '/users',
+    component: UserList,
     meta: { requiresAuth: true, requiresAdmin: true },
   },                
   {
-    name:'SpendDetails',
-    path:'/SpendDetails',
-    component:SpendDetails
-  },
-  {
-    name:'TwoFA',
-    path:'/TwoFA',
+    name:'two-fa',
+    path:'/two-fa',
     component:TwoFA           
   },
   {
-    name:'Announcement',
-    path:'/Announcement',
-    component:Announcement
+    name:'announcements',
+    path:'/announcements',
+    component:AnnouncementList
   }
-
 ];
-
 const router = createRouter({
   history: createWebHistory(),
   routes,
 });
-
 router.beforeEach((to, from, next) => {
   const store = authStore();
   if (to.matched.some((record) => record.meta.requiresAuth)) {
@@ -54,9 +47,9 @@ router.beforeEach((to, from, next) => {
     }
     store.userRole(); 
     if (to.matched.some((record) => record.meta.requiresAdmin)) {
-      if (store.user?.role !== 'admin') {
+      if (store.user?.role !== roles.ADMIN) {
         toast.error('Only admins can access this page.', { autoClose: 3000 });
-        return next({ name: 'Profile' }); 
+        return next({ name: 'profile' }); 
       }
     }
     next();
@@ -65,5 +58,4 @@ router.beforeEach((to, from, next) => {
     next();
   }
 });
-
 export default router;
