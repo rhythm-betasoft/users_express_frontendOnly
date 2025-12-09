@@ -4,13 +4,13 @@
         <v-spacer></v-spacer>
         <v-btn :to="{ path: '/profile' }">Profile</v-btn>
         <v-btn :to="{ path: '/users' }">All Users</v-btn>
-        <v-btn :to="{path:'/announcements'}">Announcements</v-btn>
+        <v-btn :to="{ path: '/announcements' }">Announcements</v-btn>
         <v-btn>
             <v-icon left>mdi-account </v-icon>
             <v-menu activator="parent">
                 <v-list>
                     <v-list-item>
-                       <h4> Hello {{ user.name }} !!</h4>
+                        <h4> Hello {{ user.name }} !!</h4>
                     </v-list-item>
                     <v-list-item link :to="{ path: '/' }">
                         <v-list-item-title>
@@ -26,7 +26,7 @@
                 </v-list>
             </v-menu>
         </v-btn>
-       
+
     </v-app-bar>
 </template>
 
@@ -50,4 +50,3 @@ export default {
     }
 }
 </script>
-    
