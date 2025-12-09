@@ -10,16 +10,10 @@
 <script>
 import Navbar from './components/Navbar.vue';
 import { authStore } from './store/authStore'; 
-import Utils from '@/utils/utils.js'
-const utilsService=new Utils();
+
 export default {
   components: {
     Navbar
-  },
-   provide() {
-    return {
-      utils:utilsService
-    };
   },
   computed: {
     isLoggedIn() {
