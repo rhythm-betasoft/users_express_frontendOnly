@@ -59,13 +59,9 @@ import api from '@/plugins/api'
 import { roles } from '@/enums/roles';
 import addAnnouncementDialog from '@/components/Dialogs/AddAnnouncementDialog.vue'
 export default {
-  inject:['toast'],
+  inject:['toast','utils'],
   components: {
     addAnnouncementDialog
-  },
-  setup() {
-    const utils = inject('utils')
-    return {utils };
   },
   data() {
     return {

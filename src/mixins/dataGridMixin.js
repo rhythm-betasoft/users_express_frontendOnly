@@ -1,6 +1,5 @@
 import { ref, computed } from "vue";
 import CustomStore from "devextreme/data/custom_store";
-import axios from "axios";
 import { Workbook } from "exceljs";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
@@ -35,15 +34,17 @@ export default function dataSource(
   };
 
   const dataSource = new CustomStore({
-    byKey: async (key) => {
-      try {
-        const response = await api.get(`/users`, { params: { id: key } });
-        return response.data;
-      } catch (error) {
-        throw new Error("Failed to fetch item by key");
-      }
+    byKey: (key) => {
+      return api
+        .get(`/users`, { params: { id: key } })
+        .then((response) => {
+          return response.data;
+        })
+        .catch(() => {
+          throw new Error("Failed to fetch item by key");
+        });
     },
-    load: async function (loadOptions) {
+    load: function (loadOptions) {
       const dxKeys = [
         "skip",
         "take",
@@ -53,48 +54,60 @@ export default function dataSource(
         "filter",
       ];
       let queryParams = params || {};
+
       Object.keys(params).forEach((key) => {
         if (dxKeys.includes(key)) {
           delete queryParams[key];
         }
       });
+
       dxKeys.forEach((i) => {
         if (i in loadOptions && isNotEmpty(loadOptions[i])) {
           queryParams[i] = `${JSON.stringify(loadOptions[i])}`;
         }
-      });try{
-        const response = await api.get(url, { params: queryParams });
-        return {
-          data: response.data.data || [],
-        };
-        }
-        catch(error){
+      });
+
+      return api
+        .get(url, { params: queryParams })
+        .then((response) => {
+          return {
+            data: response.data.data || [],
+          };
+        })
+        .catch(() => {
           throw new Error("Error while fetching record");
-        }
+        });
     },
-    insert: async function (values) {
-      try {
-        await axios.post(insertURL, values);
-        return true;
-      } catch (error) {
-        throw new Error("Error while adding record");
-      }
+    insert: function (values) {
+      return api
+        .post(insertURL, values)
+        .then(() => {
+          return true;
+        })
+        .catch(() => {
+          throw new Error("Error while adding record");
+        });
     },
-    update: async function (key, values) {
-      try {
-        await api.put(`${updateURL}/${key.id}`, values);
-        return true;
-      } catch (error) {
-        throw new Error("Error while updating record.");
-      }
+
+    update: function (key, values) {
+      return api
+        .put(`${updateURL}/${key.id}`, values)
+        .then(() => {
+          return true;
+        })
+        .catch(() => {
+          throw new Error("Error while updating record.");
+        });
     },
-    remove: async function (key) {
-      try {
-        await api.delete(`${deleteURL}/${key.id}`);
-        return true;
-      } catch (error) {
-        throw new Error("Error while deleting record.");
-      }
+    remove: function (key) {
+      return api
+        .delete(`${deleteURL}/${key.id}`)
+        .then(() => {
+          return true;
+        })
+        .catch(() => {
+          throw new Error("Error while deleting record.");
+        });
     },
   });
   const onExporting = async (e = null) => {
@@ -138,7 +151,7 @@ export default function dataSource(
     worksheet.addRow(columns);
     dataToExport.forEach((row) => {
       worksheet.addRow(columns.map((col) => row[col]));
-    }); 
+    });
     worksheet.eachRow((row) => {
       row.eachCell((cell) => {
         cell.font = { name: "Arial", size: 12 };

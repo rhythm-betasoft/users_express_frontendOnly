@@ -13,7 +13,7 @@ import { authStore } from '@/store/authStore';
 import swalToast from '@/utils/toast.js';
 import Utils from '@/utils/utils.js'
 const toastService=new swalToast();
-const utils=new Utils();
+const utilsService=new Utils();
 export default {
   components: {
     Navbar
@@ -21,7 +21,7 @@ export default {
  provide() {
     return {
       toast: toastService,
-      utils
+      utils:utilsService
     };
   },
   computed: {

@@ -11,10 +11,6 @@ import api from '@/plugins/api';
 export default {
   inject:['toast'],
    name: 'ReligionChart',
-  setup() {
-    const toast = inject('toast');
-    return { toast };
-  },
   data() {
     return {
       religionChartData: [],
