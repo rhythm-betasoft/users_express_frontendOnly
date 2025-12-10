@@ -17,7 +17,7 @@
           <v-card-text>
             <p>{{ announcement.content }}</p>
             <small class="text-muted">
-              Posted by {{ announcement.author.name }} on {{ this.$utils.formatDate(announcement.createdAt )}}
+              Posted by {{ announcement.author.name }} on {{ $utils.formatDate(announcement.createdAt )}}
             </small>
           </v-card-text>
 
