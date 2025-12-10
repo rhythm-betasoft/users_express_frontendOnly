@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="addmodalvalue" max-width="600px" persistent>
+  <v-dialog v-model="addmodalvalue" max-width="600" persistent>
     <v-card>
       <v-card-title>Add New User</v-card-title>
       <v-card-text>
@@ -15,10 +15,9 @@
     </v-card>
   </v-dialog>
 </template>
-
+ 
 <script>
 export default {
-  inject:['toast'],
   name: "AddUserDialog",
   data() {
     return {
@@ -37,11 +36,11 @@ export default {
     submitForm() {
       this.$api.post('/user/register', this.user)
         .then(({data}) => {
-          this.toast.show(data.message,'success')
+          this.$toast.show(data.message,'success')
           this.closeDialog(true);
         })
         .catch((error) => {
-          this.toast.show(error, 'error');
+          this.$toast.show(error, 'error');
         })
     }
   }

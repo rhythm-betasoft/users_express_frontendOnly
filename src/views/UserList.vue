@@ -8,8 +8,8 @@
         <DxDataGrid :data-source="usersData.dataSource"
           :remote-operations="{ filtering: true, sorting: true, paging: true }" :show-borders="true"
           :column-auto-width="true" :row-alternation-enabled="true" :paging="{ pageSize: 10 }"
-          :pager="usersData.paginationOption" :filter-row="{ visible: true, showOperationChooser: true }"
-          :ref="usersData.dataGridRef" :selection="{ mode: 'multiple', showCheckBoxesMode: 'always' }"
+          :filter-row="{ visible: true, showOperationChooser: true }" ref="userdataref"
+          :selection="{ mode: 'multiple', showCheckBoxesMode: 'always' }"
           :editing="{ allowUpdating: true, allowDeleting: true, allowAdding: true, confirmDelete: true }"
           :export="{ enabled: true, filename: 'Users' }" @exporting="usersData.onExporting"
           @row-prepared="onRowPrepared">
@@ -17,7 +17,6 @@
           <template #master_detail="{ data }">
             <SpendDetails :spendData="data.data" />
           </template>
-
           <DxToolbar>
             <DxItem location="after" widget="dxButton" :options="defination.createButtonOptions" />
             <DxItem location="after" widget="dxDropDownButton" :options="{
@@ -34,7 +33,7 @@
                 } else if (e.itemData.text === 'Export to PDF') {
                   usersData.onExportingPDF();
                 }
-              }   
+              }
             }" />
           </DxToolbar>
 
@@ -50,14 +49,13 @@
             <DxButton name="delete" icon="trash" />
             <DxButton name="pin" icon="pin" :onClick="e => togglePin(e.row.data)" />
           </DxColumn>
-
           <DxSummary>
             <DxTotalItem column="salary" summaryType="sum" />
           </DxSummary>
         </DxDataGrid>
       </template>
 
-      <AddUserDialog v-if="addDialog" @closed="closeAddDialog" />
+      <add-user-dialog v-if="addDialog" @closed="closeAddDialog" />
 
       <template #religionChart>
         <ReligionChart />
@@ -67,17 +65,14 @@
 </template>
 
 <script>
-import datagridMixin from "@/mixins/dataGridMixin.js";
+import dataGridMixin from "../mixins/dataGridMixin";
 import SpendDetails from "@/components/SpendDetails.vue";
 import DxTabPanel from "devextreme-vue/tab-panel";
 import AddUserDialog from "@/components/Dialogs/AddUserDialog.vue";
 import ReligionChart from "@/components/ReligionChart.vue";
 import { roles } from "@/enums/roles.js";
-import api from "@/plugins/api";
-import dataSource from "@/mixins/dataGridMixin.js";
 export default {
-  mixins: [datagridMixin],
-  inject:['toast'],
+  mixins: [dataGridMixin],
   components: {
     SpendDetails,
     DxTabPanel,
@@ -86,6 +81,7 @@ export default {
   },
   data() {
     return {
+      userdataref:null,
       tabItems: [
         { title: "User Grid", template: "userGrid" },
         { title: "Religion Chart", template: "religionChart" },
@@ -101,20 +97,16 @@ export default {
   },
   computed: {
     usersData() {
-      return this.createUsersDataSource();
-    }
-  },
-  methods: {
-    createUsersDataSource() {
-      return dataSource(
+      return this.dataSource(
         "/user/list",
         {},
-        "/user/delete",
+        "/user/register",
         "/user/update",
-        null,
-        "/user/insert"
+        "/user/delete"
       );
     },
+  },
+  methods: {
     openAddDialog() {
       this.addDialog = true;
     },
@@ -133,25 +125,23 @@ export default {
       }
     },
     togglePin(rowData) {
-      api.put(`/user/${rowData.id}/pin`)
+      this.$api.put(`/user/${rowData.id}/pin`)
         .then(({ data }) => {
-          this.usersData.refreshTable(this.usersData.dataGridRef);
-          this.toast.show(data.message, 'success')
+          this.refreshTable(this.userdataref);
+          this.$toast.show(data.message, 'success')
         })
         .catch((error) => {
-          this.toast.show(error, 'error')
+          this.$toast.show(error, 'error')
         });
     },
   },
 };
 </script>
-
-
 <style scoped>
-:deep(.admin-row) {
+.admin-row {
   background-color: #d3f9d8;
 }
-:deep(.pinned-row) {
+.pinned-row {
   background-color: #fff8c7;
 }
 </style>

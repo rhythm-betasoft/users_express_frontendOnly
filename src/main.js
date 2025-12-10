@@ -12,6 +12,7 @@ import piniaPersist from "pinia-plugin-persistedstate";
 import api from "@/plugins/api.js";
 import utils from "@/utils/index.js";
 import swalToast from "@/utils/toast.js";
+import devextreme from "./plugins/devextreme";
 const pinia = createPinia();
 pinia.use(piniaPersist);
 
@@ -28,4 +29,4 @@ const app = createApp(App);
 app.config.globalProperties.$api = api;
 app.config.globalProperties.$utils = new utils();
 app.config.globalProperties.$toast = new swalToast();
-app.use(router).use(vuetify).use(pinia).mount("#app");
+app.use(router).use(vuetify).use(pinia).use(devextreme).mount("#app");

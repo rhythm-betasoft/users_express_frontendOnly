@@ -1,259 +1,353 @@
-import { ref, computed } from "vue";
 import CustomStore from "devextreme/data/custom_store";
-import { Workbook } from "exceljs";
-import { saveAs } from "file-saver";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import api from "@/plugins/api";
-import Swal from "sweetalert2";
 
 const isNotEmpty = (value) => {
   return value !== undefined && value !== null && value !== "";
 };
-export default function dataSource(
-  url,
-  params = {},
-  deleteURL = null,
-  updateURL = null,
-  customRefName = null,
-  insertURL = null
-) {
-  const skipLoader = ref(true);
-  const dataGridRefName = customRefName ?? ref(null);
-  const refKey = ref("dataGrid");
-  const paginationOption = {
-    visible: true,
-    displayMode: "compact",
-    allowedPageSizes: [10, 25, 50],
-    childAllowedPageSizes: [7, 15, 25],
-    showPageSizeSelector: true,
-    showInfo: true,
-    showNavigationButton: true,
-    mobilePage: 5,
-    defaultPage: 10,
-  };
-
-  const dataSource = new CustomStore({
-    byKey: (key) => {
-      return api
-        .get(`/users`, { params: { id: key } })
-        .then((response) => {
-          return response.data;
-        })
-        .catch(() => {
-          throw new Error("Failed to fetch item by key");
-        });
+export default {
+  data() {
+    return {
+      displayMode: "standard",
+      pageSizes: [25, 35, 50, 100],
+      pageSize: 10,
+      childPageSizes:  [7, 10, 15, 25],
+      childPageSize:7,
+      showPageSizeSelector: true,
+      showNavButtons: true,
+      showInfo: true,
+      skipLoader: true,
+      dataGridRefName: "dataGrid",
+      showColumnLines: true,
+      showRowLines: false,
+      refKey: "dataGrid",
+      selectedRowsData: [],
+      currencyFormat: {
+        style: "currency",
+        currency: "GBP",
+        minimumFractionDigits: 2,
+        useCurrencyAccountingStyle: false
+      }
+    };
+  },
+  computed: {
+    refName: function () {
+      return this.getDataGridRefName(this.refKey);
     },
-    load: function (loadOptions) {
-      const dxKeys = [
-        "skip",
-        "take",
-        "requireTotalCount",
-        "requireGroupCount",
-        "sort",
-        "filter",
-      ];
-      let queryParams = params || {};
+    dxGrid: function () {
+      return this.$refs[this.refName]
+        ? this.$refs[this.refName].instance
+        : null;
+    },
+    isMobile: function () {
+      return window.isMobile();
+    }
+  },
+  methods: {
+    dataSource(
+      url,
+      params,
+      insertURL = null,
+      updateURL = null,
+      deleteURL = null
+    ) {
+      const store =  new CustomStore({
+        byKey: (key) => {
+          return fetch(url + "?id=" + key);
+        },
+        load: (loadOptions) => {
+          const dxKeys = [
+            "skip",
+            "take",
+            "requireTotalCount",
+            "requireGroupCount",
+            "sort",
+            "filter",
+            "totalSummary",
+            "groupSummary"
+          ];
+          if (!params) {
+            params = {};
+          }
 
-      Object.keys(params).forEach((key) => {
-        if (dxKeys.includes(key)) {
-          delete queryParams[key];
-        }
+          Object.keys(params).forEach((key) => {
+            if (dxKeys.indexOf(key) > -1) {
+              delete params[key];
+            }
+          });
+
+          dxKeys.forEach((i) => {
+            if (i in loadOptions && isNotEmpty(loadOptions[i])) {
+              params[i] = `${JSON.stringify(loadOptions[i])}`;
+            }
+          });
+
+          return this.$api
+            .get(url, { params })
+            .then(({ data }) => {
+              if (this.skipLoader) {
+                this.skipLoader = false;
+              }
+              const response = {};
+              response.data = data.data || [];
+              if (data.summary) {
+                response.summary = data.summary;
+              }
+              if (data.groupSummary) {
+                response.groupSummary = data.groupSummary;
+              }
+              if (data.totalCount) {
+                response.totalCount = data.totalCount;
+              } else {
+                response.totalCount = 0;
+              }
+              if (data.groupCount) {
+                response.groupCount = data.groupCount;
+              }
+              return response;
+            })
+            .catch(() => {
+              if (this.skipLoader) {
+                this.skipLoader = false;
+              }
+              throw new Error("Data Loading Error");
+            });
+        },
+        insert: (values) => {
+          if (values["__KEY__"]) {
+            delete values["__KEY__"];
+          }
+          return this.$api
+            .post(insertURL, values)
+            .then(() => {
+              return true;
+            })
+            .catch((error) => {
+              throw new Error("Error while adding record");
+            });
+        },
+        update: (key, values) => {
+          return this.$api
+            .put(updateURL + "/" + key.id, values)
+            .then(() => {
+              return true;
+            })
+            .catch((error) => {
+              throw new Error("Error while updating record.");
+            });
+        },
+        remove: (key) => {
+          return this.$api
+            .delete(deleteURL + "/" + key.id)
+            .then(() => {
+              return true;
+            })
+            .catch((error) => {
+              throw new Error("Error while deleting record.");
+            });
+        },
       });
-
-      dxKeys.forEach((i) => {
-        if (i in loadOptions && isNotEmpty(loadOptions[i])) {
-          queryParams[i] = `${JSON.stringify(loadOptions[i])}`;
+      return {
+    dataSource: store
+      }
+    },
+    refreshTable(ref, changedOnly = false) {
+      const table = ref ?? this.dataGridRefName;
+      const dataGrid = this.$refs[table].instance;
+      dataGrid.refresh(changedOnly);
+    },
+    getDataGridRefName(ref_name) {
+      this.dataGridRefName = "dataGrid_" + ref_name;
+      return this.dataGridRefName;
+    },
+    getSearchbarWidth(page) {
+      if (this.isMobile) {
+        if (page == "users") {
+          return 300;
         }
-      });
-
-      return api
-        .get(url, { params: queryParams })
-        .then((response) => {
-          return {
-            data: response.data.data || [],
-          };
-        })
-        .catch(() => {
-          throw new Error("Error while fetching record");
-        });
+        if (page == "expenses") {
+          return 150;
+        } else {
+          return 200;
+        }
+      } else {
+        return 250;
+      }
     },
-    insert: function (values) {
-      return api
-        .post(insertURL, values)
-        .then(() => {
-          return true;
-        })
-        .catch(() => {
-          throw new Error("Error while adding record");
-        });
+    formatDate(date, withTime) {
+      if (date)
+        if (withTime) return window.moment(date).format("DD/MM/YYYY hh:mm A");
+        else return window.moment(date, "YYYY-MM-DD").format("DD/MM/YYYY");
+      else return "";
     },
-
-    update: function (key, values) {
-      return api
-        .put(`${updateURL}/${key.id}`, values)
-        .then(() => {
-          return true;
-        })
-        .catch(() => {
-          throw new Error("Error while updating record.");
-        });
+    formatAmount(val) {
+      const GBP = new Intl.NumberFormat("en-GB", this.currencyFormat);
+      let amount = "0.00";
+      if (typeof val.value == "undefined") {
+        if (val) {
+          amount = val;
+        }
+      } else {
+        amount = val.value ?? "0.00";
+      }
+      return GBP.format(amount);
     },
-    remove: function (key) {
-      return api
-        .delete(`${deleteURL}/${key.id}`)
-        .then(() => {
-          return true;
-        })
+    getLookUpSource(url) {
+      return window.axios
+        .get(url)
+        .then(({ data }) => data.data)
         .catch(() => {
           throw new Error("Error while deleting record.");
         });
     },
-  });
-  const onExporting = async (e = null) => {
-    e && (e.cancel = true);
-    const gridInstance = e?.component || dataGridRefName.value?.instance;
-    if (!gridInstance) return;
-    const selectedData = gridInstance.getSelectedRowsData();
-    const result = await Swal.fire({
-      title: "Export Users",
-      text: "Do you want to export selected users or all users?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Selected Users",
-      cancelButtonText: "All Users",
-      reverseButtons: true,
-    });
-    let dataToExport = [];
-    if (result.isConfirmed) {
-      if (selectedData.length === 0) {
-        Swal.fire(
-          "No Selection",
-          "Please select at least one user.",
-          "warning"
-        );
-        return;
+    formattedDesc(val) {
+      if (!val) {
+        return "";
       }
-      dataToExport = selectedData;
-    } else {
+      let filtered = val;
+      filtered = filtered.replace(/&nbsp;/gi, " ");
+      filtered = filtered.replace(/(<([^>]+)>)/gi, "");
+      if (filtered.length > 150) {
+        filtered = filtered.substr(0, 150) + "...";
+      }
+      return filtered;
+    },
+    downloadFile(url, name) {
+      window.axios
+        .get(url, {
+          responseType: "blob"
+        })
+        .then((resp) => {
+          let fileNameResponse = resp.headers["content-disposition"]
+            .split("filename=")[1]
+            .replace(/['"]+/g, "");
+          if (fileNameResponse && fileNameResponse != "") {
+            fileNameResponse = fileNameResponse.trim();
+            name = fileNameResponse;
+          }
+          const href = URL.createObjectURL(resp.data);
+          const link = document.createElement("a");
+          link.href = href;
+          link.target = "_blank";
+          link.download = true;
+          link.setAttribute("download", name);
+          document.body.appendChild(link);
+          link.click(); // clean up "a" element & remove
+          document.body.removeChild(link);
+          URL.revokeObjectURL(href);
+        })
+        .catch(({ response, message }) => {
+          let msg =
+            response && response.data && response.data.message
+              ? response.data.message
+              : message;
+          this.$toast.show(msg, "error");
+        });
+    },
+    fallbackCopyTextToClipboard(text) {
+      var textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.top = "0";
+      textArea.style.left = "0";
+      textArea.style.position = "fixed";
+
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
       try {
-        const response = await api.get("/user/list");
-        dataToExport = response.data.data;
-      } catch (error) {
-        Swal.fire("Error", "Failed to fetch users.", "error");
+        var successful = document.execCommand("copy");
+        if (successful) {
+          this.$toast.show("Content copied to clipboard", "success");
+        }
+      } catch (err) {
+        console.error("Fallback: Oops, unable to copy", err);
+      }
+
+      document.body.removeChild(textArea);
+    },
+    copyTextToClipboard(text) {
+      const that = this;
+      if (!navigator.clipboard) {
+        this.fallbackCopyTextToClipboard(text);
         return;
       }
-    }
-    if (dataToExport.length === 0) return;
-    const workbook = new Workbook();
-    const worksheet = workbook.addWorksheet("Exported Data");
-    const columns = Object.keys(dataToExport[0]);
-    worksheet.addRow(columns);
-    dataToExport.forEach((row) => {
-      worksheet.addRow(columns.map((col) => row[col]));
-    });
-    worksheet.eachRow((row) => {
-      row.eachCell((cell) => {
-        cell.font = { name: "Arial", size: 12 };
-        cell.alignment = { horizontal: "left" };
+      navigator.clipboard.writeText(text).then(
+        function () {
+          that.$toast.show("Content copied to clipboard", "success");
+        },
+        function (err) {
+          console.error("Async: Could not copy text: ", err);
+        }
+      );
+    },
+    deleteSelected(ids, refreshCallback, deleteUrl) {
+      window.Swal.fire({
+        width: "400px",
+        icon: "warning",
+        showConfirmButton: true,
+        showCancelButton: true,
+        confirmButtonColor: "#2a8b2a",
+        cancelButtonColor: "#bc0000",
+        html: `<h5>Are you sure</h5>`,
+        confirmButtonText: "Yes"
+      }).then(async (result) => {
+        if (result.value) {
+          window.axios
+            .post(deleteUrl, { ids })
+            .then(({ data }) => {
+              this.$toast.show(
+                data.message,
+                data.status == true || data.status == "success"
+                  ? "success"
+                  : "error"
+              );
+              if (data.status && typeof refreshCallback === "function") {
+                refreshCallback();
+              }
+            })
+            .catch(({ response, message }) => {
+              this.$toast.show(response?.data?.message || message, "error");
+            });
+        }
       });
-    });
-
-    const buffer = await workbook.xlsx.writeBuffer();
-    saveAs(
-      new Blob([buffer], { type: "application/octet-stream" }),
-      "Users.xlsx"
-    );
-  };
-
-  const onExportingPDF = async (e = { cancel: false }) => {
-    e.cancel = true;
-
-    const dataGrid = dataGridRefName.value?.instance;
-    if (!dataGrid) return;
-
-    const selectedData = dataGrid.getSelectedRowsData();
-
-    const result = await Swal.fire({
-      title: "Export to PDF",
-      text: "Do you want to export selected users or all users?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Selected Users",
-      cancelButtonText: "All Users",
-      reverseButtons: true,
-    });
-    let dataToExport = [];
-    if (result.isConfirmed) {
-      if (selectedData.length === 0) {
-        Swal.fire(
-          "No Selection",
-          "Please select at least one user.",
-          "warning"
-        );
-        return;
-      }
-      dataToExport = selectedData;
-    } else {
-      try {
-        const response = await api.get("/user/list");
-        dataToExport = response.data.data;
-      } catch (error) {
-        Swal.fire("Error", "Failed to fetch users.", "error");
-        return;
-      }
-    }
-
-    if (dataToExport.length === 0) return;
-
-    const doc = new jsPDF();
-    const columns = Object.keys(dataToExport[0]);
-    const rows = dataToExport.map((row) => columns.map((col) => row[col]));
-    autoTable(doc, {
-      head: [columns],
-      body: rows,
-    });
-    doc.save("Users.pdf");
-  };
-
-  const refreshTable = (dataGridRef, changedOnly = false) => {
-    if (!dataGridRef) {
-      return;
-    }
-    const dataGrid = dataGridRef.value?.instance;
-
-    if (!dataGrid) {
-      return;
-    }
-
-    dataGrid.refresh(changedOnly);
-  };
-  const getDataGridRefName = (ref_name) => {
-    return (dataGridRefName.value = "dataGrid_" + ref_name);
-  };
-  const refName = computed(() => {
-    return getDataGridRefName(refKey.value);
-  });
-  const dxGrid = computed(() => {
-    return dataGridRefName ? dataGridRefName.value.instance : null;
-  });
-
-  const isMobile = computed(() => {
-    return window.innerWidth <= 768;
-  });
-
-  return {
-    dataGridRef: dataGridRefName,
-    dxGrid,
-    refName,
-    dataSource,
-    refKey,
-    skipLoader,
-    refreshTable,
-    getDataGridRefName,
-    onExporting,
-    onExportingPDF,
-    paginationOption,
-    isMobile,
-  };
-}
+    },
+    restoreSelected(ids, refreshCallback, url) {
+      window.Swal.fire({
+        width: "400px",
+        icon: "warning",
+        showConfirmButton: true,
+        showCancelButton: true,
+        confirmButtonColor: "#2a8b2a",
+        cancelButtonColor: "#bc0000",
+        html: `<h5>Are you sure</h5>
+                `,
+        confirmButtonText: "Yes"
+      }).then(async (result) => {
+        if (result.value) {
+          window.axios
+            .post(url, { ids })
+            .then(({ data }) => {
+              this.$toast.show(
+                data.message,
+                data.status == true || data.status == "success"
+                  ? "success"
+                  : "error"
+              );
+              if (data.status) {
+                this.refreshTable();
+              }
+            })
+            .catch(({ response, message }) => {
+              this.$toast.show(
+                response && response.data && response.data.message
+                  ? response.data.message
+                  : message,
+                "error"
+              );
+            });
+        }
+      });
+    },
+   
+  },
+ 
+};

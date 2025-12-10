@@ -7,9 +7,7 @@
   </DxChart>
 </template>
 <script>
-import api from '@/plugins/api';
 export default {
-  inject:['toast'],
    name: 'ReligionChart',
   data() {
     return {
@@ -18,12 +16,12 @@ export default {
   },
   methods: {
     fetchReligionCounts() {
-      api.get('/user/religion-counts')
+      this.$api.get('/user/religion-counts')
         .then(({ data }) => {
           this.religionChartData = data;
         })
         .catch(error => {
-          this.toast.show(error, 'error');
+          this.$toast.show(error, 'error');
         });
     },
   },
