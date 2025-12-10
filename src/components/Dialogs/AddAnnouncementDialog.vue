@@ -17,8 +17,7 @@
 
 <script>
 export default {
-  inject:['toast'],
-  name: "addAnnouncementDialog",
+  name:"AddAnnouncementDialog",
   data() {
     return {
       addmodalvalue: true,
@@ -35,11 +34,11 @@ export default {
     submitForm() {
       this.$api.post('/announcements/add', this.announcement)
         .then(({ data }) => {
-          this.toast.show(data.message, 'success');
+          this.$toast.show(data.message, 'success');
           this.closeDialog(true);
         })
         .catch((error) => {
-          this.toast.show(error, 'error');
+          this.$toast.show(error, 'error');
         })
     }
   }

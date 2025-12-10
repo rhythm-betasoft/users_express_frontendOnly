@@ -17,7 +17,7 @@
           <v-card-text>
             <p>{{ announcement.content }}</p>
             <small class="text-muted">
-              Posted by {{ announcement.author.name }} on {{ utils.formatDate(announcement.createdAt) }}
+              Posted by {{ announcement.author.name }} on {{ this.$utils.formatDate(announcement.createdAt )}}
             </small>
           </v-card-text>
 
@@ -27,7 +27,7 @@
                 Comments
               </v-expansion-panel-title>
               <v-expansion-panel-text>
-                <div v-if="announcement.comments?.length">
+                <div v-if="announcement.comments.length">
                   <div v-for="comment in announcement.comments" :key="comment.id" class="mb-3">
                     <strong>{{ comment.author.name }}</strong>
                     <p class="mb-1">{{ comment.content }}</p>
@@ -49,18 +49,16 @@
       </v-col>
     </v-row>
   </v-container>
-  <addAnnouncementDialog v-if="addAnnouncementDialog" @closed="closeAddAnnouncementDialog" />
+  <add-announcement-dialog v-if="addAnnouncementDialog" @closed="closeAddAnnouncementDialog" />
 </template>
 
 <script>
 import { authStore } from '@/store/authStore'
-import api from '@/plugins/api'
 import { roles } from '@/enums/roles';
-import addAnnouncementDialog from '@/components/Dialogs/AddAnnouncementDialog.vue'
+import AddAnnouncementDialog from '@/components/Dialogs/AddAnnouncementDialog.vue';
 export default {
-  inject:['toast','utils'],
   components: {
-    addAnnouncementDialog
+    AddAnnouncementDialog
   },
   data() {
     return {
@@ -75,37 +73,37 @@ export default {
   },
   methods: {
     fetchAnnouncements() {
-      api.get('/announcements/list')
+      this.$api.get('/announcements/list')
         .then(({ data }) => {
           this.announcements = data
         })
         .catch(error => {
-          this.toast.show(error, 'error')
+          this.$toast.show(error, 'error')
         })
     },
     loadComments(announcementId) {
-      api.get(`/announcements/${announcementId}`)
+      this.$api.get(`/announcements/${announcementId}`)
         .then(({ data }) => {
           this.announcement = data;
         })
         .catch(error => {
-          this.toast.show(error, 'error');
+          this.$toast.show(error, 'error');
         });
     },
     submitComment(announcement) {
       if (!announcement.newComment) return;
-      api.post('/comment', {
+      this.$api.post('/comment', {
         content: announcement.newComment,
         userId: this.store.user.id,
         announcementId: announcement.id
       })
         .then(({ data }) => {
           announcement.newComment = '';
-          this.toast.show(data.message, 'success')
+          this.$toast.show(data.message, 'success')
           this.loadComments(announcement.id);
         })
         .catch(error => {
-          this.toast.show(error, 'error');
+          this.$toast.show(error, 'error');
         });
     },
     closeAddAnnouncementDialog() {
