@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="addmodalvalue" max-width="600" persistent>
+  <v-dialog v-model="isVisible" max-width="600" persistent>
     <v-card>
       <v-card-title>Add New User</v-card-title>
       <v-card-text>
@@ -21,7 +21,7 @@ export default {
   name: "AddUserDialog",
   data() {
     return {
-      addmodalvalue:true,
+      isVisible:true,
       user: {
         name: '',
         email: '',

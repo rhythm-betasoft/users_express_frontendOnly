@@ -172,12 +172,6 @@ export default {
         return 250;
       }
     },
-    formatDate(date, withTime) {
-      if (date)
-        if (withTime) return window.moment(date).format("DD/MM/YYYY hh:mm A");
-        else return window.moment(date, "YYYY-MM-DD").format("DD/MM/YYYY");
-      else return "";
-    },
     formatAmount(val) {
       const GBP = new Intl.NumberFormat("en-GB", this.currencyFormat);
       let amount = "0.00";

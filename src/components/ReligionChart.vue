@@ -14,6 +14,9 @@ export default {
       religionChartData: [],
     };
   },
+    mounted() {
+    this.fetchReligionCounts();
+  },
   methods: {
     fetchReligionCounts() {
       this.$api.get('/user/religion-counts')
@@ -24,9 +27,6 @@ export default {
           this.$toast.show(error, 'error');
         });
     },
-  },
-  mounted() {
-    this.fetchReligionCounts();
   },
 };
 </script>
