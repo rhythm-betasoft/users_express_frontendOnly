@@ -1,43 +1,40 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import { authStore } from '../store/authStore';
-import Register from '../views/Register.vue';
-import Profile from '../views/Profile.vue';
-import EntireData from '../views/EntireData.vue';
-import { toast } from 'vue3-toastify';
-import SpendDetails from '../views/SpendDetails.vue'
-import 'vue3-toastify/dist/index.css';
-import TwoFA from '../views/TwoFA.vue'
-import Announcement from '../views/Announcement.vue'
-const routes = [
-  { name: 'Register', path: '/', component: Register },
-  {
-    name: 'Profile',
-    path: '/Profile',
-    component: Profile,
-    meta: { requiresAuth: true },
-  },
-  {
-    name: 'EntireData',
-    path: '/EntireData',
-    component: EntireData,
-    meta: { requiresAuth: true, requiresAdmin: true },
-  },                
-  {
-    name:'SpendDetails',
-    path:'/SpendDetails',
-    component:SpendDetails
-  },
-  {
-    name:'TwoFA',
-    path:'/TwoFA',
-    component:TwoFA           
-  },
-  {
-    name:'Announcement',
-    path:'/Announcement',
-    component:Announcement
-  }
+import { createRouter, createWebHistory } from "vue-router";
+import { authStore } from "@/store/authStore";
+import { toast } from "vue3-toastify";
+import { defineAsyncComponent } from "vue";
+import "vue3-toastify/dist/index.css";
+import { roles } from "@/enums/roles";
 
+const routes = [
+  {
+    name: "register",
+    path: "/",
+    component: defineAsyncComponent(() => import("@/views/Register.vue")),
+  },
+  {
+    name: "profile",
+    path: "/profile",
+    component: defineAsyncComponent(() => import("@/views/Profile.vue")),
+    meta: { requireAuth: true },
+  },
+  {
+    name: "user-list",
+    path: "/users",
+    component: defineAsyncComponent(() => import("@/views/UserList.vue")),
+    meta: { requireAuth: true, requireAdmin: true },
+  },
+  {
+    name: "two-fa",
+    path: "/two-fa",
+    component: defineAsyncComponent(() => import("@/views/TwoFA.vue")),
+  },
+  {
+    name: "announcements",
+    path: "/announcements",
+    component: defineAsyncComponent(() =>
+      import("@/views/AnnouncementList.vue")
+    ),
+  },
 ];
 
 const router = createRouter({
@@ -47,21 +44,25 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const store = authStore();
-  if (to.matched.some((record) => record.meta.requiresAuth)) {
+
+  if (to.matched.some((record) => record.meta.requireAuth)) {
     if (!store.isLoggedIn()) {
-      toast.error('You must be logged in to access this page.', { autoClose: 3000 });
-      return next({ name: 'Register' });
+      toast.error("You must be logged in to access this page.", {
+        autoClose: 3000,
+      });
+      return next({ name: "register" });
     }
-    store.userRole(); 
-    if (to.matched.some((record) => record.meta.requiresAdmin)) {
-      if (store.user?.role !== 'admin') {
-        toast.error('Only admins can access this page.', { autoClose: 3000 });
-        return next({ name: 'Profile' }); 
+
+    store.userRole();
+
+    if (to.matched.some((record) => record.meta.requireAdmin)) {
+      if (store.user?.role !== roles.ADMIN) {
+        toast.error("Only admins can access this page.", { autoClose: 3000 });
+        return next({ name: "profile" });
       }
     }
     next();
-  } 
-  else {
+  } else {
     next();
   }
 });
