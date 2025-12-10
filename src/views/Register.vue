@@ -59,7 +59,7 @@
               class="text-center mt-https://github.com/rhythm-betasoft/Authentication-express-typescript.git6 grey--text text-caption">
               Don’t have an account?
               <a href="#" @click="toggleFlag" class="deep-orange--text text-decoration-none">Signup</a>
-            </div>
+            </div>  
             <div v-if="flag" @click="toggleFlag" class="text-center mt-6 grey--text text-caption">
               Already have an account?
               <a href="#" @click="toggleFlag" class="deep-orange--text text-decoration-none">Login</a>
@@ -75,7 +75,6 @@
 import api from '@/plugins/api.js'
 import { authStore } from '@/store/authStore'
 export default {
-inject:['toast'],
   data() {
     return {
       flag: false,
@@ -100,11 +99,11 @@ inject:['toast'],
           const { accesstoken, refreshtoken, user } = data;
           const store = authStore();
           store.setAuth(accesstoken, refreshtoken, user);
-          this.toast.show(data.message, 'success');
+          this.$toast.show(data.message, 'success');
           this.toggleFlag();
         })
         .catch((error) => {
-          this.toast.show(error, "error");
+          this.$toast.show(error, "error");
         });
     },
     login() {
@@ -127,11 +126,11 @@ inject:['toast'],
             return;
           }
           store.setAuth(accesstoken, refreshtoken, user);
-          this.toast.show(data.message, "success");
+          this.$toast.show(data.message, "success");
           this.$router.push("/profile");
         })
         .catch((error) => {
-          this.toast.show(error, "error");
+          this.$toast.show(error, "error");
         });
     }
 
