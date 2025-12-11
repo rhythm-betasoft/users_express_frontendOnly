@@ -59,7 +59,7 @@
               class="text-center mt-https://github.com/rhythm-betasoft/Authentication-express-typescript.git6 grey--text text-caption">
               Don’t have an account?
               <a href="#" @click="toggleFlag" class="deep-orange--text text-decoration-none">Signup</a>
-            </div>  
+            </div>
             <div v-if="flag" @click="toggleFlag" class="text-center mt-6 grey--text text-caption">
               Already have an account?
               <a href="#" @click="toggleFlag" class="deep-orange--text text-decoration-none">Login</a>
@@ -69,19 +69,26 @@
       </v-col>
     </v-row>
   </v-container>
+  <TwoFA v-if="showTwoFaDialog" :user="store.user" @closed="closeTwoFaDialog" />
 </template>
 
 <script>
-import api from '@/plugins/api.js'
 import { authStore } from '@/store/authStore'
+import TwoFA from '@/components/Dialogs/TwoFA.vue';
+const store = authStore()
 export default {
+  components: {
+    TwoFA
+  },
   data() {
     return {
+      store,
       flag: false,
       name: '',
       email: '',
       password: '',
       confirm: '',
+      showTwoFaDialog: false
     };
   },
   methods: {
@@ -89,7 +96,7 @@ export default {
       this.flag = !this.flag;
     },
     register() {
-      api.post('/user/register', {
+      this.$api.post('/user/register', {
         name: this.name,
         email: this.email,
         password: this.password,
@@ -99,30 +106,24 @@ export default {
           const { accesstoken, refreshtoken, user } = data;
           const store = authStore();
           store.setAuth(accesstoken, refreshtoken, user);
-          this.$toast.show(data.message, 'success');
           this.toggleFlag();
+          this.$toast.show(data.message, 'success');
         })
         .catch((error) => {
           this.$toast.show(error, "error");
         });
     },
     login() {
-      api.post('/user/login', {
+      this.$api.post('/user/login', {
         email: this.email,
         password: this.password,
       })
         .then(({ data }) => {
-          const { message, accesstoken, refreshtoken, user, qr, otpauthUrl } = data;
+          const { message, accesstoken, refreshtoken, user } = data;
           const store = authStore();
+          store.setUser(user);
           if (message?.includes("2FA setup required") || message?.includes("2FA verification required")) {
-            this.$router.push({
-              path: '/two-fa',
-              query: {
-                qr: qr || '',
-                otpauthUrl: otpauthUrl || '',
-                userId: user.id
-              }
-            });
+            this.openTwoFaDialog();
             return;
           }
           store.setAuth(accesstoken, refreshtoken, user);
@@ -133,6 +134,13 @@ export default {
           this.$toast.show(error, "error");
         });
     }
+    ,
+    closeTwoFaDialog() {
+      this.showTwoFaDialog = false;
+    },
+    openTwoFaDialog() {
+      this.showTwoFaDialog = true;
+    },
 
   }
 }

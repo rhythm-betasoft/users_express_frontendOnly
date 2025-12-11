@@ -1,5 +1,5 @@
 <template>
-    <v-dialog v-model="showDialog" max-width="400" persistent>
+    <v-dialog v-model="isVisible" max-width="400" persistent>
         <v-card class="pa-6" outlined>
             <v-card-title class="text-center">
                 <h2 class="mb-4">Two-Factor Authentication</h2>
@@ -7,16 +7,13 @@
             <v-card-subtitle class="text-center mb-4">
                 Please enter the OTP generated via authenticator.
             </v-card-subtitle>
-
-            <v-img v-if="qr" :src="qr" max-width="200" class="mx-auto mb-6" />
-
+            <img v-if="qr" :src="qr" style="max-width:200px; display:block; margin:auto;" />
             <v-text-field v-model="otp" label="Enter OTP" type="text" outlined dense @keydown.enter="verifyOTP" />
             <v-btn color="primary" @click="verifyOTP" block class="mt-4">
                 Verify OTP
             </v-btn>
             <div class="d-flex justify-end mt-2">
-                <span @click="requestOTPviaEmail" class="text-link"
-                    style="cursor: pointer;text-decoration: underline;">
+                <span @click="requestOTPviaEmail" class="text-link" style="cursor: pointer;text-decoration: underline;">
                     Request OTP via Email
                 </span>
             </div>
@@ -30,42 +27,57 @@
 </template>
 <script>
 import { authStore } from '@/store/authStore';
+
 export default {
     name: "TwoFactorDialog",
     data() {
         return {
-            showDialog: true,
+            isVisible: true,
             otp: '',
-            qr: this.$route.query.qr || '',
-            userId: this.$route.query.userId,
-            rememberDevice: false
+            qr: '',
+            rememberDevice: false,
+            store: authStore()
         };
     },
-    
+    mounted() {
+        this.openDialog();
+    },
     methods: {
-        closeDialog(data = null) {
-            this.showDialog = false;
+        openDialog() {
+            this.isVisible = true;
+            this.enableTwoFA();
+        },
+        enableTwoFA() {
+            this.$api.post(`/user/switch-on-twofa`, { userId: this.store.user.id })
+                .then(({ data }) => {
+                    this.qr = data.qr;
+                })
+                .catch(error => {
+                    this.$toast.show(error, 'error');
+                });
+        },
+        closeDialog() {
+            this.isVisible = false;
         },
         verifyOTP() {
             this.$api.post('/user/verify-twofa', {
-                userId: this.userId,
+                userId: this.store.user.id,
                 code: this.otp,
                 rememberDevice: this.rememberDevice
             })
                 .then(({ data }) => {
                     const { accesstoken, refreshtoken, user } = data;
-                    const store = authStore();  
-                    store.setAuth(accesstoken, refreshtoken, user);
+                    this.store.setAuth(accesstoken, refreshtoken, user);
                     this.$toast.show(data.message, 'success');
                     this.$router.push('/profile');
-                    this.closeDialog(true);
+                    this.closeDialog();
                 })
                 .catch(error => {
                     this.$toast.show(error, 'error');
                 });
         },
         requestOTPviaEmail() {
-            this.$api.post(`/user/otp-on-mail/${this.userId}`)
+            this.$api.post(`/user/otp-on-mail/${this.store.user.id}`)
                 .then(({ data }) => {
                     this.$toast.show(data.message, 'success');
                 })

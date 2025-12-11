@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="addmodalvalue" max-width="400px" persistent>
+  <v-dialog v-model="isVisible" max-width="400px" persistent>
     <v-card>
       <v-card-title class="text-h6 text-center">Enter OTP to Disable 2FA</v-card-title>
       <v-card-text>
@@ -19,7 +19,7 @@ export default {
   name: "OtpDialog",
   data() {
     return {
-      addmodalvalue: true, 
+      isVisible: true, 
       otp: '' ,
       store:authStore()
     };
@@ -33,7 +33,6 @@ export default {
         .then(({ data }) => {
           this.store.user.flag = false;
           this.$toast.show(data.message, "success");
-          this.otp = '';
           this.closeDialog(true);
         })
         .catch((error) => {

@@ -104,9 +104,8 @@
       <span style="font-size: 14px; color: #7F8C8D;">© 2025 Betasoft Solutions. All rights reserved.</span>
     </v-container>
   </v-footer>
-    <TwoFA v-if="showTwoFaDialog" @closed="closeTwoFaDialog"/>
-  <OtpDialog v-if="showOTPDialog" @closed="closeOtpDialog" />
-
+  <TwoFA v-if="showTwoFaDialog" :user="store.user" @closed="closeTwoFaDialog" />
+  <otp-dialog v-if="showDisableTwofaDialog" @closed="closeDisableTwofaDialog" />
 </template>
 <script>
 import { authStore } from "@/store/authStore.js";
@@ -121,7 +120,6 @@ export default {
     const store = authStore();
     return {
       store,
-      twoFactorEnabled: Boolean(store.user.flag),
       formData: {
         age: store.user.age || "",
         gender: store.user.gender || "",
@@ -131,9 +129,9 @@ export default {
       rules: {
         required: (value) => !!value || "This field is required.",
       },
-      showOTPDialog: false,
-      showTwoFaDialog:false,
-      switchState: Boolean(store.user.flag),
+      showDisableTwofaDialog: false,
+      showTwoFaDialog: false,
+      switchState: false,
     };
   }
   ,
@@ -143,65 +141,38 @@ export default {
       return age && gender && religion && blood_group;
     },
   },
- methods: {
-  enableTwoFaPost() {
-    this.$api.post('/user/switch-on-twofa', { userId: this.store.user.id })
-      .then(({ data }) => {
-        const { qr, userId } = data;
-        this.store.user.flag = true;
-        this.twoFactorEnabled = true;
-        this.switchState = true;
-        this.$toast.show(data.message, "success");
-      })
-      .catch((error) => {
-        this.switchState = false;
-        this.$toast.show(error, "error");
-      });
-  },
+  methods: {
+    toggle2FA() {
+      const flag = this.switchState ? 1 : 0;
+      if (flag === 0) {
+        this.openDisableTwofaDialog();
+        return;
+      }
+      this.$api.put(`/user/two-fa/${this.store.user.id}`, { flag })
+        .then(() => {
+          this.openTwoFaDialog();
+        })
+        .catch((error) => {
+          this.switchState = false;
+          this.$toast.show(error, "error");
+        });
+    },
 
-  verifyOtp(otp) {
-    this.$api.post('/user/verify-otp', { userId: this.store.user.id, otp })
-      .then(({ data }) => {
-        if (data.success) {
-          this.enableTwoFaPost();
-        }
-      })
-      .catch((error) => {
-        this.$toast.show(error, "error");
-      });
-  },
 
-  toggle2FA() {
-    const flag = this.switchState ? 1 : 0;
-    if (flag === 0) {
-      this.openOtpDialog();
-      return;
-    }
-    this.$api.put(`/user/two-fa/${this.store.user.id}`, { flag })
-      .then(() => {
-        this.openTwoFaDialog();
-        this.enableTwoFaPost();
-      })
-      .catch((error) => {
-        this.switchState = false;
-        this.$toast.show(error, "error");
-      });
-  },
-
-  openOtpDialog() {
-    this.showOTPDialog = true;
-  },
-  openTwoFaDialog() {
-    this.showTwoFaDialog = true;
-  },
-  closeOtpDialog() {
-    this.showOTPDialog = false;
-    this.switchState = true;
-  },
-  closeTwoFaDialog() {
-    this.showTwoFaDialog = false;
-  },
-}
+    openDisableTwofaDialog() {
+      this.showDisableTwofaDialog = true;
+    },
+    openTwoFaDialog() {
+      this.showTwoFaDialog = true;
+    },
+    closeDisableTwofaDialog() {
+      this.showDisableTwofaDialog = false;
+      this.switchState = false
+    },
+    closeTwoFaDialog() {
+      this.showTwoFaDialog = false;
+    },
+  }
 
 
 };
