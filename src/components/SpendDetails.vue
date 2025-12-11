@@ -5,7 +5,6 @@
       :show-borders="true" 
       :column-auto-width="true"
       :row-alternation-enabled="true" 
-      :paging="{ enabled: false }" 
       class="mt-5"
     >
       <DxColumn data-field="salary" caption="Salary" format="currency" alignment="center" />

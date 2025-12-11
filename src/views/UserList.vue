@@ -55,7 +55,7 @@
         </DxDataGrid>
       </template>
 
-      <add-user-dialog v-if="addDialog" @closed="closeAddDialog" />
+      <add-user-dialog v-if="addUserDialog" @closed="closeAddUserDialog" />
 
       <template #religionChart>
         <ReligionChart />
@@ -86,11 +86,11 @@ export default {
         { title: "User Grid", template: "userGrid" },
         { title: "Religion Chart", template: "religionChart" },
       ],
-      addDialog: false,
+      addUserDialog: false,
       defination: {
         createButtonOptions: {
           icon: "add",
-          onClick: () => this.openAddDialog(),
+          onClick: () => this.openAddUserDialog(),
         },
       },
     };
@@ -107,11 +107,11 @@ export default {
     },
   },
   methods: {
-    openAddDialog() {
-      this.addDialog = true;
+    openAddUserDialog() {
+      this.addUserDialog = true;
     },
-    closeAddDialog() {
-      this.addDialog = false;
+    closeAddUserDialog() {
+      this.addUserDialog = false;
     },
     onRowPrepared(e) {
       if (e.rowType === "data") {

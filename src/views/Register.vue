@@ -129,7 +129,7 @@ export default {
 
     async login() {
   try {
-    const response = await api.post('/user/login', {
+    const response = await api.post('/users/login', {
       email: this.email,
       password: this.password,
     });
