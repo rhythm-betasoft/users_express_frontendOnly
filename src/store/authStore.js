@@ -38,6 +38,9 @@ export const authStore = defineStore('user', {
         this.user = { ...this.user, role: decoded.role }; 
       }
     },
+        setUser(user) {
+      this.user = user;
+    },
   },
   persist: true,
 });
