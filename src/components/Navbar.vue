@@ -5,6 +5,8 @@
         <v-btn :to="{ path: '/profile' }">Profile</v-btn>
         <v-btn :to="{ path: '/users' }">All Users</v-btn>
         <v-btn :to="{ path: '/announcements' }">Announcements</v-btn>
+        <v-btn :to="{path:'/announcements/grid'}">Announcement grid</v-btn>
+        <v-btn :to="{path:'/dashboard'}">Dashboard</v-btn>
         <v-btn>
             <v-icon left>mdi-account </v-icon>
             <v-menu activator="parent">

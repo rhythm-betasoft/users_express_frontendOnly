@@ -146,7 +146,16 @@ export default {
         },
       });
       return {
-    dataSource: store
+    dataSource: store,
+       paging: {
+    pageSize: 10
+  },
+  pager: {
+    showPageSizeSelector: true,
+    allowedPageSizes: [10, 20, 50, 100],
+    showInfo: true,
+    showNavButtons: true
+  }
       }
     },
     refreshTable(ref, changedOnly = false) {
