@@ -6,14 +6,14 @@
     <DxTabPanel :items="tabItems" :animation-enabled="true" height="700">
       <template #userGrid>
         <DxDataGrid :data-source="usersData.dataSource"
-          :remote-operations="{ filtering: true, sorting: true, paging: true }" :show-borders="true"
-          :column-auto-width="true" :row-alternation-enabled="true" :paging="{ pageSize: 10 }"
+          :remote-operations="{ filtering: true, sorting: true}" :show-borders="true"
+          :column-auto-width="true" :row-alternation-enabled="true" 
           :filter-row="{ visible: true, showOperationChooser: true }" ref="userdataref"
           :selection="{ mode: 'multiple', showCheckBoxesMode: 'always' }"
           :editing="{ allowUpdating: true, allowDeleting: true, allowAdding: true, confirmDelete: true }"
           :export="{ enabled: true, filename: 'Users' }" @exporting="usersData.onExporting"
-          @row-prepared="onRowPrepared">
-          <DxMasterDetail :enabled="true" template="master_detail" />
+          @row-prepared="onRowPrepared" :paging="usersData.pagingOption" :pager="usersData.pagerOption"> 
+          <DxMasterDetail :enabled="true" template="master_detail"  />
           <template #master_detail="{ data }">
             <SpendDetails :spendData="data.data" />
           </template>
@@ -36,15 +36,14 @@
               }
             }" />
           </DxToolbar>
-
-          <DxColumn data-field="id" caption="Id" alignment="center" width="150" />
-          <DxColumn data-field="name" caption="Name" alignment="center" width="250" />
-          <DxColumn data-field="gender" caption="Gender" alignment="center" width="250" :groupIndex="0" />
-          <DxColumn data-field="blood_group" caption="Blood Group" alignment="center" />
-          <DxColumn data-field="email" caption="Email" alignment="center" width="400" />
-          <DxColumn data-field="role" caption="Role" width="100" alignment="center" />
-          <DxColumn data-field="salary" caption="Salary" alignment="center" data-type="number" format="currency" />
-          <DxColumn type="buttons" width="200">
+          <DxColumn data-field="id" caption="Id" alignment="center"  />
+          <DxColumn data-field="name" caption="Name" alignment="center" :hiding-priority="3"/>
+          <DxColumn data-field="gender" caption="Gender" alignment="center" :groupIndex="0" />
+          <DxColumn data-field="blood_group" caption="Blood Group" alignment="center" :hiding-priority="0" />
+          <DxColumn data-field="email" caption="Email" alignment="center" :hiding-priority="2"/>
+          <DxColumn data-field="role" caption="Role" alignment="center" :hiding-priority="4"/>
+          <DxColumn data-field="salary" caption="Salary" alignment="center" data-type="number" format="currency" :hiding-priority="1" />
+          <DxColumn type="buttons">
             <DxButton name="edit" icon="edit" />
             <DxButton name="delete" icon="trash" />
             <DxButton name="pin" icon="pin" :onClick="e => togglePin(e.row.data)" />
@@ -54,16 +53,16 @@
           </DxSummary>
         </DxDataGrid>
       </template>
-
+ 
       <add-user-dialog v-if="addUserDialog" @closed="closeAddUserDialog" />
-
+ 
       <template #religionChart>
         <ReligionChart />
       </template>
     </DxTabPanel>
   </v-container>
 </template>
-
+ 
 <script>
 import dataGridMixin from "../mixins/dataGridMixin";
 import SpendDetails from "@/components/SpendDetails.vue";
@@ -71,6 +70,7 @@ import DxTabPanel from "devextreme-vue/tab-panel";
 import AddUserDialog from "@/components/Dialogs/AddUserDialog.vue";
 import ReligionChart from "@/components/ReligionChart.vue";
 import { roles } from "@/enums/roles.js";
+import { DxPaging } from "devextreme-vue/cjs/card-view";
 export default {
   mixins: [dataGridMixin],
   components: {

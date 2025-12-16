@@ -12,17 +12,16 @@
       :row-alternation-enabled="true"   
       :filter-row="{ visible: true, showOperationChooser: true }" ref="announcementdataref"
       :editing="{ allowUpdating: true, allowDeleting: true, allowAdding: true, confirmDelete: true }"
+      :paging="AnnouncementData.pagingOption"
+      :pager="AnnouncementData.pagerOption"
     >
-    <DxPaging v-bind="AnnouncementData.paging" />
-  <DxPager v-bind="AnnouncementData.pager" />
       <DxToolbar>
         <DxItem location="after" widget="dxButton" :options="defination.createButtonOptions" />
       </DxToolbar>  
       <DxColumn data-field="id" caption="ID" alignment="center" />
       <DxColumn data-field="title" caption="Title" alignment="center" />
-      <DxColumn data-field="content" caption="Content" alignment="left" />
-      <DxColumn data-field="createdAt" caption="Created At" data-type="date" alignment="center"  />
-
+      <DxColumn data-field="content" caption="Content" alignment="center" :hiding-priority="1 " />
+      <DxColumn data-field="createdAt" caption="Created At" data-type="date" alignment="center" :hiding-priority="0"  />
       <DxColumn type="buttons" >
         <DxButton name="edit" icon="edit" />
         <DxButton name="delete" icon="trash" />
@@ -31,10 +30,9 @@
   </v-container>
   <add-announcement-dialog v-if="addAnnouncementDialog" @closed="closeAddAnnouncementDialog" />
 </template> 
-
 <script>
-import dataGridMixin from "../mixins/dataGridMixin";
-import AddAnnouncementDialog from '../components/Dialogs/AddAnnouncementDialog.vue'
+import dataGridMixin from "@/mixins/dataGridMixin";
+import AddAnnouncementDialog from '@/components/Dialogs/AddAnnouncementDialog.vue'
 export default {
     components:{
         AddAnnouncementDialog
