@@ -17,12 +17,12 @@ const routes = [
     component: defineAsyncComponent(() => import("@/views/Profile.vue")),
     meta: { requireAuth: true },
   },
-  {
-    name: "user-list",
-    path: "/users",
-    component: defineAsyncComponent(() => import("@/views/UserList.vue")),
-    meta: { requireAuth: true, requireAdmin: true },
-  },
+  // {
+  //   name: "user-list",
+  //   path: "/users",
+  //   component: defineAsyncComponent(() => import("@/views/UserList.vue")),
+  //   meta: { requireAuth: true, requireAdmin: true },
+  // },
   {
     name: "two-fa",
     path: "/two-fa",
@@ -34,7 +34,21 @@ const routes = [
     component: defineAsyncComponent(() =>
       import("@/views/AnnouncementList.vue")
     ),
-  },
+  },  
+  {
+  name: "announcement-grid",
+  path: "/announcements/grid",
+  component: defineAsyncComponent(() =>
+    import("@/views/AnnouncementGrid.vue")
+  )
+},
+{
+  name:"dashboard",
+  path:"/dashboard",
+  component:defineAsyncComponent(()=>
+  import("@/views/DashboardView.vue")
+)
+}
 ];
 
 const router = createRouter({
