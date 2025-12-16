@@ -49,6 +49,21 @@ export default {
       updateURL = null,
       deleteURL = null
     ) {
+      const pagingOption = {
+    pageSize: 10,
+    enabled: true,
+    key: 'paging'
+  };
+  const pagerOption = {
+    visible: true,
+    displayMode: "full",
+    allowedPageSizes: [15,25,50],
+    childAllowedPageSizes: [7, 15, 25],
+    showPageSizeSelector: true,
+    showInfo: true,
+    showNavigationButtons: true,
+    key: 'pager'
+  };
       const store =  new CustomStore({
         byKey: (key) => {
           return fetch(url + "?id=" + key);
@@ -147,15 +162,8 @@ export default {
       });
       return {
     dataSource: store,
-       paging: {
-    pageSize: 10
-  },
-  pager: {
-    showPageSizeSelector: true,
-    allowedPageSizes: [10, 20, 50, 100],
-    showInfo: true,
-    showNavButtons: true
-  }
+       pagerOption,
+       pagingOption
       }
     },
     refreshTable(ref, changedOnly = false) {

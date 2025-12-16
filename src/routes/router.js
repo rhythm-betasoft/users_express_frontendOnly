@@ -17,16 +17,11 @@ const routes = [
     component: defineAsyncComponent(() => import("@/views/Profile.vue")),
     meta: { requireAuth: true },
   },
-  // {
-  //   name: "user-list",
-  //   path: "/users",
-  //   component: defineAsyncComponent(() => import("@/views/UserList.vue")),
-  //   meta: { requireAuth: true, requireAdmin: true },
-  // },
   {
-    name: "two-fa",
-    path: "/two-fa",
-    component: defineAsyncComponent(() => import("@/views/TwoFA.vue")),
+    name: "user-list",
+    path: "/users",
+    component: defineAsyncComponent(() => import("@/views/UserList.vue")),
+    meta: { requireAuth: true, requireAdmin: true },
   },
   {
     name: "announcements",
