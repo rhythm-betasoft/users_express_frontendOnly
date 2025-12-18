@@ -5,7 +5,7 @@
   <v-container>
     <DxDataGrid
       :data-source="AnnouncementData.dataSource"
-      
+
       :remote-operations="{ filtering: true, sorting: true, paging: true }"
       :show-borders="true"
       :column-auto-width="true"

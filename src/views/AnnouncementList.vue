@@ -92,7 +92,10 @@ export default {
       roles,
     }
   },
-  mounted() {
+  // mounted() {
+  //   this.fetchAnnouncements()
+  // },
+  created(){
     this.fetchAnnouncements()
   },
   methods: {
