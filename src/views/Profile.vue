@@ -110,7 +110,7 @@
 <script>
 import { authStore } from "@/store/authStore.js";
 import OtpDialog from '@/components/Dialogs/OtpDialog.vue'
-import TwoFA from "../components/Dialogs/TwoFA.vue";
+import TwoFA from "@/components/Dialogs/TwoFA.vue";
 export default {
   components: {
     OtpDialog,

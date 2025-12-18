@@ -70,7 +70,6 @@ import DxTabPanel from "devextreme-vue/tab-panel";
 import AddUserDialog from "@/components/Dialogs/AddUserDialog.vue";
 import ReligionChart from "@/components/ReligionChart.vue";
 import { roles } from "@/enums/roles.js";
-import { DxPaging } from "devextreme-vue/cjs/card-view";
 export default {
   mixins: [dataGridMixin],
   components: {
