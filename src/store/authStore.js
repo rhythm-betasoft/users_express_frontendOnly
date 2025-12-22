@@ -8,11 +8,12 @@ export const authStore = defineStore('user', {
     user: null,
   }),
   actions: {
-    setAuth(accessToken, refreshToken, user) {
-      this.accessToken = accessToken;
-      this.refreshToken = refreshToken;
-      this.user = user;
-    },
+   setAuth(accessToken, refreshToken, user) {
+  this.accessToken = accessToken;
+  this.refreshToken = refreshToken;
+  this.user = user; 
+}
+,
     logout() {
       this.accessToken = '';
       this.refreshToken = '';
@@ -32,15 +33,10 @@ export const authStore = defineStore('user', {
         return null;
       }
     },
-    userRole() {
-      const decoded = this.decodeToken();
-      if (decoded) {
-        this.user = { ...this.user, role: decoded.role }; 
-      }
-    },
         setUser(user) {
       this.user = user;
     },
+    setUserRole(role) { if (this.user) { this.user.role = role; } else { this.user = { role }; } },
   },
   persist: true,
 });
