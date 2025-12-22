@@ -5,7 +5,6 @@
         <v-img src="https://www.cultureville.co.uk/cdn/shop/collections/IMG_1304.jpg?v=1691194840&width=750"
           height="100vh" width="100%" cover></v-img>
       </v-col>
-
       <v-col cols="12" md="3" class="d-flex align-center justify-center">
         <v-card flat class="pa-8" style="border-radius: 12px; width: 380px;">
           <div class="text-center mb-6">
@@ -71,7 +70,6 @@
   </v-container>
   <TwoFA v-if="showTwoFaDialog" :user="store.user" @closed="closeTwoFaDialog" />
 </template>
-
 <script>
 import { authStore } from '@/store/authStore'
 import TwoFA from '@/components/Dialogs/TwoFA.vue';
@@ -113,35 +111,29 @@ export default {
           this.$toast.show(error, "error");
         });
     },
-    login() {
-      this.$api.post('/user/login', {
-        email: this.email,
-        password: this.password,
-      })
-        .then(({ data }) => {
-          const { message, accesstoken, refreshtoken, user } = data;
-          const store = authStore();
-          store.setUser(user);
-          if (message?.includes("2FA setup required") || message?.includes("2FA verification required")) {
-            this.openTwoFaDialog();
-            return;
-          }
-          store.setAuth(accesstoken, refreshtoken, user);
-          this.$toast.show(data.message, "success");
-          this.$router.push("/profile");
-        })
-        .catch((error) => {
-          this.$toast.show(error, "error");
-        });
-    }
-    ,
+   login() {
+  this.$api.post('/user/login', {
+    email: this.email,
+    password: this.password,
+  })
+    .then(({ data }) => {
+      const { message, accesstoken, refreshtoken, user } = data;
+      const store = authStore();
+      store.setAuth(accesstoken, refreshtoken, user);
+      store.setUserRole(user.role);
+      this.$toast.show(message, "success");
+      this.$router.push("/profile");
+    })
+    .catch((error) => {
+      this.$toast.show(error.response?.data?.message || "Login failed", "error");
+    });
+},
     closeTwoFaDialog() {
       this.showTwoFaDialog = false;
     },
     openTwoFaDialog() {
       this.showTwoFaDialog = true;
     },
-
   }
 }
 </script>

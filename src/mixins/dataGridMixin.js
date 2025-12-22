@@ -102,7 +102,12 @@ export default {
                 this.skipLoader = false;
               }
               const response = {};
-              response.data = data.data || [];
+             if(data.data){
+              response.data = data.data||[]
+             }
+             else{
+              response.data=data
+             }
               if (data.summary) {
                 response.summary = data.summary;
               }

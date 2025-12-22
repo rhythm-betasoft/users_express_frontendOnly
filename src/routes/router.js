@@ -43,6 +43,18 @@ const routes = [
   component:defineAsyncComponent(()=>
   import("@/views/DashboardView.vue")
 )
+},
+{
+  name:"LeaveView",
+  path:'/employee/leaves',
+  component:defineAsyncComponent(()=>
+  import("@/views/LeaveView.vue"))
+},
+{
+  name:"LeaveDashboard",
+  path:'/admin/leaves',
+  component:defineAsyncComponent(()=>
+  import('@/views/LeaveDashboard.vue'))
 }
 ];
 
@@ -61,11 +73,8 @@ router.beforeEach((to, from, next) => {
       });
       return next({ name: "register" });
     }
-
-    store.userRole();
-
     if (to.matched.some((record) => record.meta.requireAdmin)) {
-      if (store.user?.role !== roles.ADMIN) {
+      if (store.user.role !== roles.ADMIN) {
         toast.error("Only admins can access this page.", { autoClose: 3000 });
         return next({ name: "profile" });
       }
