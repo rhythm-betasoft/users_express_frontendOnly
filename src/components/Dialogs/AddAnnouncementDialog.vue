@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="addmodalvalue" max-width="600px" persistent>
+  <v-dialog v-model="addmodalvalue" max-width="600" persistent>
     <v-card>
       <v-card-title>Create New Announcement</v-card-title>
       <v-card-text>

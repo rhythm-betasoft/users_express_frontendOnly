@@ -13,6 +13,7 @@ import api from "@/plugins/api.js";
 import utils from "@/utils/index.js";
 import swalToast from "@/utils/toast.js";
 import devextreme from './plugins/devextreme'
+import '@vuepic/vue-datepicker/dist/main.css'
 const pinia = createPinia();
 pinia.use(piniaPersist);
 
