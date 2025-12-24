@@ -59,6 +59,7 @@ export default {
                 })
                 .then(({ data }) => {
                     this.$toast.show(data.message,'success')
+                    this.closeAssignPermissionDialog()
             })
             .catch((err)=>this.$toast.show(err,'error'))
 }
