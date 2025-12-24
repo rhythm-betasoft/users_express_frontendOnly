@@ -62,6 +62,7 @@
             </v-row>
           </v-card-text>
         </v-card>
+        <v-btn class="mt-5" v-if="store.user.role === roles.ADMIN" color="success"  @click="openCreatePermissiondialog">Create Permission</v-btn>
       </v-col>
       <v-col cols="12" md="8" v-else>
         <v-card elevation="3" class="pa-4" style="max-width: 1000px;">
@@ -96,6 +97,7 @@
             </v-row>
           </v-card-text>
         </v-card>
+        <v-btn class="mt-5" v-if="store.user.role === roles.ADMIN"  @click="openCreatePermissiondialog">Create Permission</v-btn>
       </v-col>
     </v-row>
   </v-container>
@@ -106,15 +108,19 @@
   </v-footer>
   <TwoFA v-if="showTwoFaDialog" :user="store.user" @closed="closeTwoFaDialog" />
   <otp-dialog v-if="showDisableTwofaDialog" @closed="closeDisableTwofaDialog" />
+  <create-permission v-if="showCreatePermissionDialog" @closed="closeCreatePermissionDialog"/>
 </template>
 <script>
 import { authStore } from "@/store/authStore.js";
 import OtpDialog from '@/components/Dialogs/OtpDialog.vue'
 import TwoFA from "@/components/Dialogs/TwoFA.vue";
+import createPermission from '@/components/Dialogs/createPermission.vue'
+import {roles} from '../enums/roles'
 export default {
   components: {
     OtpDialog,
-    TwoFA
+    TwoFA,
+    createPermission
   },
   data() {
     const store = authStore();
@@ -131,10 +137,11 @@ export default {
       },
       showDisableTwofaDialog: false,
       showTwoFaDialog: false,
+      showCreatePermissionDialog:false,
       switchState: false,
+      roles
     };
-  }
-  ,
+  },
   computed: {
     isProfileComplete() {
       const { age, gender, religion, blood_group } = this.store.user;
@@ -172,6 +179,18 @@ export default {
     closeTwoFaDialog() {
       this.showTwoFaDialog = false;
     },
+    openCreatePermissiondialog(){
+      this.showCreatePermissionDialog=true
+    },
+  
+    closeCreatePermissionDialog(){
+  this.showCreatePermissionDialog = false;
+},
+abc(){
+  console.log(this.user.role);
+  console.log(roles.ADMIN)
+}
+
   }
 
 

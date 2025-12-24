@@ -4,7 +4,7 @@ import { toast } from "vue3-toastify";
 import { defineAsyncComponent } from "vue";
 import "vue3-toastify/dist/index.css";
 import { roles } from "@/enums/roles";
-
+import {PERMISSIONS} from '../enums/Permissions'
 const routes = [
   {
     name: "register",
@@ -21,7 +21,8 @@ const routes = [
     name: "user-list",
     path: "/users",
     component: defineAsyncComponent(() => import("@/views/UserList.vue")),
-    meta: { requireAuth: true, requireAdmin: true },
+    meta: { requireAuth: true, requireAdmin: true,permissions:[PERMISSIONS.USER] },
+    
   },
   {
     name: "announcements",
@@ -35,7 +36,8 @@ const routes = [
   path: "/announcements/grid",
   component: defineAsyncComponent(() =>
     import("@/views/AnnouncementGrid.vue")
-  )
+  ),
+  meta:{permissions: [PERMISSIONS.ANNOUNCEMENT]}
 },
 {
   name:"dashboard",
@@ -54,18 +56,16 @@ const routes = [
   name:"LeaveDashboard",
   path:'/admin/leaves',
   component:defineAsyncComponent(()=>
-  import('@/views/LeaveDashboard.vue'))
+  import('@/views/LeaveDashboard.vue')),
+  meta:{permissions: [PERMISSIONS.LEAVE]}
 }
 ];
-
 const router = createRouter({
   history: createWebHistory(),
   routes,
 });
-
 router.beforeEach((to, from, next) => {
   const store = authStore();
-
   if (to.matched.some((record) => record.meta.requireAuth)) {
     if (!store.isLoggedIn()) {
       toast.error("You must be logged in to access this page.", {
@@ -80,9 +80,22 @@ router.beforeEach((to, from, next) => {
       }
     }
     next();
-  } else {
+  }
+  if (to.meta.permissions && Array.isArray(to.meta.permissions)) {
+    const userPermissions =store.user.permissions||[]
+    const hasPermission = to.meta.permissions.some(p =>
+      userPermissions.includes(p)
+    )
+    if (!hasPermission) {
+      toast.error("No permission",{autoclose:2000})
+      return next({ name: 'profile' })
+    }
+    next()
+  }
+  else {
     next();
   }
+    return true
 });
 
 export default router;

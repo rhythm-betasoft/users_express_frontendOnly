@@ -48,6 +48,7 @@
             <DxButton name="delete" icon="trash" />
             <DxButton name="pin" icon="pin" :onClick="e => togglePin(e.row.data)" />
             <DxButton hint="person" icon="user" :onClick="e => openUserRoleDialog(e.row.data)" />
+              <DxButton hint="Permission" icon="preferences" :on-click="e=>openAssignPermissionDialog(e.row.data)"/>
           </DxColumn>
           <DxSummary>
             <DxTotalItem column="salary" summaryType="sum" />
@@ -57,6 +58,7 @@
 
       <add-user-dialog v-if="addUserDialog" @closed="closeAddUserDialog" />
       <user-role v-if="userRoleDialog" :id="userId" @closed="closeUserRoleDialog" />
+      <assign-permission v-if="assignPermissionDialog" :id="userId" @closed="closeAssignPermissionDialog" />
       <template #religionChart>
         <ReligionChart />
       </template>
@@ -72,6 +74,7 @@ import AddUserDialog from "@/components/Dialogs/AddUserDialog.vue";
 import ReligionChart from "@/components/ReligionChart.vue";
 import { roles } from "@/enums/roles.js";
 import UserRole from '@/components/Dialogs/UserRole.vue'
+import assignPermission from '@/components/Dialogs/assignPermission.vue'
 export default {
   mixins: [dataGridMixin],
   components: {
@@ -79,7 +82,8 @@ export default {
     DxTabPanel,
     AddUserDialog,
     ReligionChart,
-    UserRole
+    UserRole,
+    assignPermission
   },
   data() {
     return {
@@ -90,6 +94,7 @@ export default {
       ],
       addUserDialog: false,
       userRoleDialog: false,
+      assignPermissionDialog:false,
       defination: {
         createButtonOptions: {
           icon: "add",
@@ -118,12 +123,18 @@ export default {
       this.addUserDialog = false;
     },
     openUserRoleDialog(data) {
-      console.log(data.id)
       this.userId = data.id
       this.userRoleDialog = true;
     },
     closeUserRoleDialog() {
       this.userRoleDialog = false;
+    },
+    openAssignPermissionDialog(data){
+      this.userId=data.id
+      this.assignPermissionDialog=true;
+    },
+    closeAssignPermissionDialog(){
+      this.assignPermissionDialog=false
     },
     onRowPrepared(e) {
       if (e.rowType === "data") {
