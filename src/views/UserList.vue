@@ -67,14 +67,15 @@
 </template>
 
 <script>
+  import {defineAsyncComponent} from 'vue'
 import dataGridMixin from "../mixins/dataGridMixin";
-import SpendDetails from "@/components/SpendDetails.vue";
+const SpendDetails=defineAsyncComponent(()=>import('../components/SpendDetails.vue'))
 import DxTabPanel from "devextreme-vue/tab-panel";
-import AddUserDialog from "@/components/Dialogs/AddUserDialog.vue";
-import ReligionChart from "@/components/ReligionChart.vue";
+const AddUserDialog=defineAsyncComponent(()=>import('../components/Dialogs/AddUserDialog.vue'))
+const ReligionChart=defineAsyncComponent(()=>import('../components/ReligionChart.vue'))
 import { roles } from "@/enums/roles.js";
-import UserRole from '@/components/Dialogs/UserRole.vue'
-import assignPermission from '@/components/Dialogs/assignPermission.vue'
+const UserRole=defineAsyncComponent(()=>import('../components/Dialogs/UserRole.vue'))
+const assignPermission=defineAsyncComponent(()=>import('../components/Dialogs/assignPermission.vue'))
 export default {
   mixins: [dataGridMixin],
   components: {

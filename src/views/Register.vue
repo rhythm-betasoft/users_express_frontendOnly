@@ -71,8 +71,9 @@
   <TwoFA v-if="showTwoFaDialog" :user="store.user" @closed="closeTwoFaDialog" />
 </template>
 <script>
+import { defineAsyncComponent } from 'vue'
 import { authStore } from '@/store/authStore'
-import TwoFA from '@/components/Dialogs/TwoFA.vue';
+const TwoFA = defineAsyncComponent(() => import('@/components/Dialogs/TwoFA.vue'))
 const store = authStore()
 export default {
   components: {
@@ -111,23 +112,23 @@ export default {
           this.$toast.show(error, "error");
         });
     },
-   login() {
-  this.$api.post('/user/login', {
-    email: this.email,
-    password: this.password,
-  })
-    .then(({ data }) => {
-      const { message, accesstoken, refreshtoken, user } = data;
-      const store = authStore();
-      store.setAuth(accesstoken, refreshtoken, user);
-      store.setUserRole(user.role);
-      this.$toast.show(message, "success");
-      this.$router.push("/profile");
-    })
-    .catch((error) => {
-      this.$toast.show(error.response?.data?.message || "Login failed", "error");
-    });
-},
+    login() {
+      this.$api.post('/user/login', {
+        email: this.email,
+        password: this.password,
+      })
+        .then(({ data }) => {
+          const { message, accesstoken, refreshtoken, user } = data;
+          const store = authStore();
+          store.setAuth(accesstoken, refreshtoken, user);
+          store.setUserRole(user.role);
+          this.$toast.show(message, "success");
+          this.$router.push("/profile");
+        })
+        .catch((error) => {
+          this.$toast.show(error.response?.data?.message || "Login failed", "error");
+        });
+    },
     closeTwoFaDialog() {
       this.showTwoFaDialog = false;
     },

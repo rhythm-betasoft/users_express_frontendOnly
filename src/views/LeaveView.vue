@@ -25,8 +25,9 @@
   <ApplyLeave v-if="applyLeaveDialog" @closed="closeApplyLeaveDialog" />
 </template>
 <script>
+  import {defineAsyncComponent} from 'vue'
 import dataGridMixin from "@/mixins/dataGridMixin";
-import ApplyLeave from "@/components/Dialogs/ApplyLeave.vue";
+const ApplyLeave=defineAsyncComponent(()=>import('@/components/Dialogs/ApplyLeave.vue'))
 export default {
   components: {
     ApplyLeave

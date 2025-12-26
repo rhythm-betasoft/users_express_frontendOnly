@@ -31,8 +31,9 @@
   <add-announcement-dialog v-if="addAnnouncementDialog" @closed="closeAddAnnouncementDialog" />
 </template> 
 <script>
+  import {defineAsyncComponent} from 'vue'
 import dataGridMixin from "@/mixins/dataGridMixin";
-import AddAnnouncementDialog from '@/components/Dialogs/AddAnnouncementDialog.vue'
+const AddAnnouncementDialog=defineAsyncComponent(()=>import('@/components/Dialogs/AddAnnouncementDialog.vue'))
 export default {
     components:{
         AddAnnouncementDialog

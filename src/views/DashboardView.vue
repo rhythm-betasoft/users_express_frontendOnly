@@ -32,8 +32,9 @@
 </template>
 
 <script>
-import GenderChart from '@/components/GenderChart.vue';
-import BloodGroupChart from '../components/BloodGroupChart.vue'
+  import {defineAsyncComponent} from 'vue'
+const GenderChart=defineAsyncComponent(()=>import('@/components/GenderChart.vue'))
+const BloodGroupChart=defineAsyncComponent(()=>import('@/components/BloodGroupChart.vue'))
 export default {
     components:{
        GenderChart,

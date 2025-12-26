@@ -5,7 +5,7 @@
 
         <div class="d-flex justify-center mx-auto mt-5" style="max-width: 500px;">
             <v-select :items="allUsers" item-title="name" item-value="id" label="Select User" v-model="selectedUserId"
-                @update:model-value="openAttendanceDialog" variant="outlined" density="compact"  />
+                @update:model-value="openAttendanceDialog" variant="outlined" density="compact" />
         </div>
 
 
@@ -16,7 +16,8 @@
 </template>
 
 <script>
-import AttendanceDetail from '@/components/Dialogs/AttendanceDetail.vue'
+import { defineAsyncComponent } from "vue";
+const AttendanceDetail=defineAsyncComponent(()=>import('@/components/Dialogs/AttendanceDetail.vue'))
 export default {
     components: {
         AttendanceDetail
