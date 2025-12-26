@@ -5,4 +5,4 @@ export const roles = {
   HR: 'hr',
   ALL: 'all',
   USER:'user'
-};
+};  
