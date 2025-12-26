@@ -58,6 +58,12 @@ const routes = [
   component:defineAsyncComponent(()=>
   import('@/views/LeaveDashboard.vue')),
   meta:{permissions: [PERMISSIONS.LEAVE]}
+},
+{
+  name:"AttendanceMarking",
+  path:'/attendance/marking',
+  component:defineAsyncComponent(()=>
+  import('@/views/AttendanceMarking.vue'))
 }
 ];
 const router = createRouter({

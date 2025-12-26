@@ -7,7 +7,7 @@
     <v-btn v-if="store.user?.role === roles.ADMIN" :to="{ path: '/announcements/grid' }">Announcements</v-btn>
     <v-btn v-if="store.user?.role === roles.ADMIN" :to="{ path: '/dashboard' }">Dashboard</v-btn>
     <v-btn v-if="store.user?.role === roles.ADMIN" :to="{ path: '/admin/leaves' }">Leaves</v-btn>
-
+    <v-btn :to="{path:'/attendance/marking'}">Attendance</v-btn>
     <v-btn v-if="store.user?.role !== roles.ADMIN" :to="{ path: '/announcements' }">Announcements</v-btn>
     <v-btn v-if="store.user?.role !== roles.ADMIN" :to="{ path: '/employee/leaves' }">Leaves</v-btn>
 
