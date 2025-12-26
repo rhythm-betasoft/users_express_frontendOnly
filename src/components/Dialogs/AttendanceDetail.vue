@@ -6,16 +6,13 @@
         </v-card>
     </v-dialog>
 </template>
-
 <script>
 import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
-import {authStore} from '@/store/authStore'
-import {roles} from '@/enums/roles'
 export default {
     name: "AttendanceDetail",
-    components: { FullCalendar,roles },
+    components: { FullCalendar},
     props: {
         userId: String,
         month: Number,
@@ -27,11 +24,9 @@ export default {
             calendarOptions: {
                 plugins: [dayGridPlugin, interactionPlugin],
                 weekends: false,
-                // initialView: 'dayGridMonth',
                 events: [],
                 dateClick:this.handleDateClick
             },
-            store:authStore()
         }
     },
     mounted() {

@@ -26,8 +26,9 @@
   </v-container>
 </template>
 <script>
+  import {defineAsyncComponent} from 'vue'
 import dataGridMixin from "@/mixins/dataGridMixin";
-import LeaveDetails from "../components/LeaveDetails.vue"
+  const LeaveDetails=defineAsyncComponent(()=>import('@/components/LeaveDetails.vue'))
 export default {
   components: {
     LeaveDetails

@@ -4,7 +4,7 @@ import { toast } from "vue3-toastify";
 import { defineAsyncComponent } from "vue";
 import "vue3-toastify/dist/index.css";
 import { roles } from "@/enums/roles";
-import {PERMISSIONS} from '../enums/Permissions'
+import {PERMISSIONS} from '@/enums/Permissions'
 const routes = [
   {
     name: "register",

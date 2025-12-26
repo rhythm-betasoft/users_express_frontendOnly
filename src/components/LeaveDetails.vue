@@ -13,7 +13,8 @@
   <leave-disapprove v-if="leaveDisapproveDialog" :id="leave.id" @closed="closeLeaveDisappproveDialog" @updated="$emit('updated')" />
 </template>
 <script>
-    import LeaveDisapprove from '@/components/Dialogs/LeaveDisapprove.vue'
+  import {defineAsyncComponent} from 'vue'
+    const LeaveDisapprove=defineAsyncComponent(()=>('../components/Dialogs/LeaveDisapprove.vue'))
 export default {
   name: "LeaveDetail",
   components: {

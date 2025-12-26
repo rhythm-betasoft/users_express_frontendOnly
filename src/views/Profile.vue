@@ -111,10 +111,11 @@
   <create-permission v-if="showCreatePermissionDialog" @closed="closeCreatePermissionDialog"/>
 </template>
 <script>
+  import {defineAsyncComponent} from 'vue'
 import { authStore } from "@/store/authStore.js";
-import OtpDialog from '@/components/Dialogs/OtpDialog.vue'
-import TwoFA from "@/components/Dialogs/TwoFA.vue";
-import createPermission from '@/components/Dialogs/createPermission.vue'
+const OtpDialog=defineAsyncComponent(()=>import('../components/Dialogs/OtpDialog.vue'))
+const TwoFA=defineAsyncComponent(()=>import('@/components/Dialogs/TwoFA.vue'))
+const createPermission=defineAsyncComponent(()=>import('../components/Dialogs/createPermission.vue'))
 import {roles} from '../enums/roles'
 export default {
   components: {

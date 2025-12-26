@@ -78,9 +78,10 @@
 </template>
 
 <script>
+  import {defineAsyncComponent} from 'vue'
 import { authStore } from '@/store/authStore'
 import { roles } from '@/enums/roles'
-import AddAnnouncementDialog from '@/components/Dialogs/AddAnnouncementDialog.vue'
+const AddAnnouncementDialog=defineAsyncComponent(()=>import('../components/Dialogs/AddAnnouncementDialog.vue'))
 
 export default {
   components: { AddAnnouncementDialog },
@@ -92,9 +93,6 @@ export default {
       roles,
     }
   },
-  // mounted() {
-  //   this.fetchAnnouncements()
-  // },
   created(){
     this.fetchAnnouncements()
   },
